@@ -12,15 +12,17 @@
 
 </head>
 
+@stack('scripts')
+
 <body class="bg-gray-100 dark:bg-gray-900">
-    <x-navbar-dashboard></x-navbar-dashboard>
+    @include('layouts.partials.navbar')
     <div class="flex pt-16 overflow-hidden bg-gray-50 dark:bg-gray-900">
-        <x-sidebar.admin-sidebar />
+        @include('layouts.partials.sidebar')
         <div id="main-content" class="relative w-full h-full overflow-y-auto bg-gray-50 lg:ml-64 dark:bg-gray-900">
             <main>
                 @yield('content')
             </main>
-            <x-footer-dashboard />
+            @include('layouts.partials.footer')
         </div>
     </div>
 </body>

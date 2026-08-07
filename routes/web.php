@@ -1,18 +1,25 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\UserController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
+Route::get(
+    '/transactions',
+    [AdminDashboardController::class, 'index']
+)->name('pages.dashboard.admin.admindashboard');
 
-Route::get('/', function () {
-    return view('pages.testing');
-});
+Route::get(
+    '/products',
+    [AdminDashboardController::class, 'index']
+)->name('pages.dashboard.admin.admindashboard');
+
+Route::get(
+    '/users',
+    [UserController::class, 'index']
+)->name('pages.testing');
+
+Route::get(
+    '/users/{id}',
+    [UserController::class, 'show']
+)->name('pages.test');
