@@ -1,3 +1,3 @@
-<x-sidebar-dashboard>
+<x-sidebar.admin-sidebar>
 
-</x-sidebar-dashboard>
+</x-sidebar.admin-sidebar>

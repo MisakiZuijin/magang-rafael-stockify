@@ -24,7 +24,7 @@ $chartData = [
     ];
     @endphp
 
-    <div class="lg: pb-10 min-h-screen bg-gray-50 relative z-0">
+    <div class="lg: pb-10 min-h-screen relative z-0">
         <div class="p-4 sm:p-6 lg:p-8">
             <div class="grid grid-cols-12 gap-4 lg:gap-6">
 
@@ -147,7 +147,7 @@ $chartData = [
                             <tbody class="divide-y divide-gray-100">
                                 @forelse($transactions->sortBy('id') as $transaction)
                                 <tr class="hover:bg-gray-50 transition-colors">
-                                    <td class="px-4 py-3 font-mono text-gray-500">{{ $transaction->id }}</td>
+                                    <td class="px-4 py-3 font-mono text-gray-500">#{{ $transaction->id }}</td>
                                     <td class="px-4 py-3 font-medium text-gray-800">{{ $transaction->product?->name ?? 'N/A' }}</td>
                                     <td class="px-4 py-3 font-medium text-gray-800">{{ $transaction->user?->name ?? 'N/A' }}</td>
                                     <td class="px-4 py-3">
@@ -259,7 +259,7 @@ $chartData = [
                             <tbody class="divide-y divide-gray-100">
                                 @forelse($products->sortBy('id') as $product)
                                 <tr class="hover:bg-gray-50 transition-colors">
-                                    <td class="px-4 py-3 font-mono text-gray-500">{{ $product->id }}</td>
+                                    <td class="px-4 py-3 font-mono text-gray-500">#{{ $product->id }}</td>
                                     <td class="px-4 py-3 font-medium text-gray-800">{{ $product->name }}</td>
                                     <td class="px-4 py-3 text-gray-500">Rp {{ number_format($product->purchase_price, 0, ',', '.') }}</td>
                                     <td class="px-4 py-3 text-gray-500">Rp {{ number_format($product->selling_price, 0, ',', '.') }}</td>
