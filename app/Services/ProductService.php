@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Collection;
 class ProductService
 {
     public function __construct(
-        protected ProductRepositoryInterface $repository // ← pakai interface
+        protected ProductRepositoryInterface $repository
     ) {}
 
     public function getAllProducts(): Collection
@@ -20,5 +20,20 @@ class ProductService
     public function getProductById(int $id): Product
     {
         return $this->repository->findById($id);
+    }
+
+    public function createProduct(array $data): Product
+    {
+        return $this->repository->create($data);
+    }
+
+    public function updateProduct(int $id, array $data): Product
+    {
+        return $this->repository->update($id, $data);
+    }
+
+    public function deleteProduct(int $id): bool
+    {
+        return $this->repository->delete($id);
     }
 }

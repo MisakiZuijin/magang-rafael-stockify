@@ -8,6 +8,10 @@ use App\Repositories\Contracts\ProductRepositoryInterface;
 use App\Repositories\ProductRepository;
 use App\Repositories\Contracts\TransactionRepositoryInterface;
 use App\Repositories\TransactionRepository;
+use App\Repositories\Contracts\CategoriRepositoryInterface;
+use App\Repositories\CategoriRepository;
+use App\Repositories\Contracts\SupplierRepositoryInterface;
+use App\Repositories\SupplierRepository;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -20,6 +24,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
         $this->app->bind(ProductRepositoryInterface::class, ProductRepository::class);
         $this->app->bind(TransactionRepositoryInterface::class, TransactionRepository::class);
+        $this->app->bind(CategoriRepositoryInterface::class, CategoriRepository::class);
+        $this->app->bind(SupplierRepositoryInterface::class, SupplierRepository::class);
     }
 
     /**

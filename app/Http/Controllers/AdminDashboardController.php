@@ -20,7 +20,7 @@ class AdminDashboardController extends Controller
         $transactions = $this->transactionService->getAllTransaction();
         $recentActivities = $this->transactionService->getRecentActivities(5);
 
-        return view('pages.dashboard.admin.admindashboard', compact(
+        return view('pages.admin.admindashboard', compact(
             'products',
             'transactions',
             'recentActivities'

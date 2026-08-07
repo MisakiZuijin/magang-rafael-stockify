@@ -15,7 +15,7 @@ class TransactionController extends Controller
     {
         $transactions = $this->transactionService->getAllTransaction();
 
-        return view('pages.dashboard.admin.admindashboard', compact('transactions', 'product'));
+        return view('pages.admin.admindashboard', compact('transactions', 'product'));
     }
 
     /**
@@ -25,6 +25,6 @@ class TransactionController extends Controller
     {
         $transaction = $this->transactionService->getAllTransaction($id);
 
-        return view('pages.dashboard.admin.admindashboard', compact('transaction'));
+        return view('pages.admin.admindashboard', compact('transaction'));
     }
 }
