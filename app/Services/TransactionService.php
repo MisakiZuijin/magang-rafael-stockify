@@ -26,4 +26,9 @@ class TransactionService
     {
         return $this->repository->findById($id);
     }
+
+    public function createTransaction(array $data): StockTransaction
+    {
+        return $this->repository->create($data);
+    }
 }

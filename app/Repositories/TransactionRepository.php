@@ -24,7 +24,7 @@ class TransactionRepository implements TransactionRepositoryInterface
 
     public function findById(int $id): StockTransaction
     {
-        return $this->model->findOrFail($id);
+        return $this->model->with(['user', 'product'])->findOrFail($id);
     }
 
     public function getRecentActivities(int $limit = 5): Collection
@@ -34,5 +34,10 @@ class TransactionRepository implements TransactionRepositoryInterface
             ->latest()
             ->limit($limit)
             ->get();
+    }
+
+    public function create(array $data): StockTransaction
+    {
+        return $this->model->create($data);
     }
 }

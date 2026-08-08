@@ -13,11 +13,21 @@ class StockTransaction extends Model
     protected $table = 'stock_transactions';
 
     protected $fillable = [
-        'user_id',
         'product_id',
+        'user_id',
+        'type',
         'quantity',
-        'type'
+        'date',
+        'status',
+        'note',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'date' => 'date',
+        ];
+    }
 
     public function user(): BelongsTo
     {

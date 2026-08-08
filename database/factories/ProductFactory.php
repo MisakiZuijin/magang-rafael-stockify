@@ -28,6 +28,7 @@ class ProductFactory extends Factory
             'selling_price' => $this->faker->randomFloat(2, 10, 1000),
             'image' => $this->faker->imageUrl(640, 480),
             'stock' => $this->faker->numberBetween(0, 100),
+            'minimum_stock' => $this->faker->numberBetween(0, 100),
         ];
     }
 }

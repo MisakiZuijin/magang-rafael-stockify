@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\ProductService;
 use App\Services\CategoriService;
 use App\Services\SupplierService;
+use App\Services\ProductAttributService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -15,13 +16,15 @@ class ProductController extends Controller
         protected ProductService $productService,
         protected CategoriService $categoryService,
         protected SupplierService $supplierService,
+        protected ProductAttributService $productAttributService
     ) {}
 
     public function index(): View
     {
         $products = $this->productService->getAllProducts();
         $categories = $this->categoryService->getAllCategories();
-        return view('pages.admin.adminproduct', compact('products', 'categories'));
+        $productAttributs = $this->productAttributService->getAll();
+        return view('pages.admin.adminproduct', compact('products', 'categories', 'productAttributs'));
     }
 
     public function create(): View
@@ -29,7 +32,7 @@ class ProductController extends Controller
         $categories = $this->categoryService->getAllCategories();
         $suppliers  = $this->supplierService->getAllSuppliers();
 
-        return view('pages.admin.adminproduct-form-product', compact('categories', 'suppliers'));
+        return view('pages.admin.form.adminproduct-form-product', compact('categories', 'suppliers'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -42,7 +45,8 @@ class ProductController extends Controller
             'sku'            => ['required', 'string', 'max:100', 'unique:products,sku'],
             'purchase_price' => ['required', 'numeric', 'min:0'],
             'selling_price'  => ['required', 'numeric', 'min:0'],
-            'stock'          => ['required', 'integer', 'min:0'],
+            'stock'     => ['required', 'integer', 'min:0'],
+            'minimum_stock'          => ['required', 'integer', 'min:0'],
             'image'          => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
         ]);
 
@@ -67,7 +71,7 @@ class ProductController extends Controller
         $categories = $this->categoryService->getAllCategories();
         $suppliers  = $this->supplierService->getAllSuppliers();
 
-        return view('pages.admin.adminproduct-form-product', compact('product', 'categories', 'suppliers'));
+        return view('pages.admin.form.adminproduct-form-product', compact('product', 'categories', 'suppliers'));
     }
 
     public function update(Request $request, int $id): RedirectResponse
@@ -80,7 +84,8 @@ class ProductController extends Controller
             'sku'            => ['required', 'string', 'max:100', 'unique:products,sku,' . $id],
             'purchase_price' => ['required', 'numeric', 'min:0'],
             'selling_price'  => ['required', 'numeric', 'min:0'],
-            'stock'          => ['required', 'integer', 'min:0'],
+            'stock'     => ['required', 'integer', 'min:0'],
+            'minimum_stock'     => ['required', 'integer', 'min:0'],
             'image'          => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
         ]);
 

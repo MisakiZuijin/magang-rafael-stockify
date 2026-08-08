@@ -23,6 +23,7 @@ class Product extends Model
         'selling_price',
         'image',
         'stock',
+        'minimum_stock',
     ];
 
     public function categori(): BelongsTo

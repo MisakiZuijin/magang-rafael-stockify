@@ -22,6 +22,7 @@ class ProductRequest extends FormRequest
             'purchase_price' => ['required', 'numeric', 'min:0'],
             'selling_price'  => ['required', 'numeric', 'min:0'],
             'stock'          => ['required', 'integer', 'min:0'],
+            'minimum_stock'          => ['required', 'integer', 'min:0'],
             'image'          => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
         ];
     }
@@ -39,6 +40,8 @@ class ProductRequest extends FormRequest
             'image.required'            => 'Harga jual wajib diisi.',
             'stock.required'            => 'Stok wajib diisi.',
             'stock.min'                 => 'Stok tidak boleh negatif.',
+            'minimum_stock.required'            => 'Stok wajib diisi.',
+            'minimum_stock.min'                 => 'Stok tidak boleh negatif.',
         ];
     }
 }

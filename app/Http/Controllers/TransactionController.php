@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\TransactionService;
-use Illuminate\view\View;
+use Illuminate\View\View;
 
 class TransactionController extends Controller
 {
@@ -14,17 +14,12 @@ class TransactionController extends Controller
     public function index(): View
     {
         $transactions = $this->transactionService->getAllTransaction();
-
-        return view('pages.admin.admindashboard', compact('transactions', 'product'));
+        return view('pages.admin.admindashboard', compact('transactions'));
     }
 
-    /**
-     * Tampilkan detail 1 user
-     */
     public function show(int $id): View
     {
-        $transaction = $this->transactionService->getAllTransaction($id);
-
+        $transaction = $this->transactionService->getTransactionById($id);
         return view('pages.admin.admindashboard', compact('transaction'));
     }
 }

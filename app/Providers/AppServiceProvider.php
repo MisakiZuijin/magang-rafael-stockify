@@ -12,6 +12,8 @@ use App\Repositories\Contracts\CategoriRepositoryInterface;
 use App\Repositories\CategoriRepository;
 use App\Repositories\Contracts\SupplierRepositoryInterface;
 use App\Repositories\SupplierRepository;
+use App\Repositories\Contracts\ProductAttributRepositoryInterface;
+use App\Repositories\ProductAttributRepository;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -26,6 +28,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(TransactionRepositoryInterface::class, TransactionRepository::class);
         $this->app->bind(CategoriRepositoryInterface::class, CategoriRepository::class);
         $this->app->bind(SupplierRepositoryInterface::class, SupplierRepository::class);
+        $this->app->bind(ProductAttributRepositoryInterface::class, ProductAttributRepository::class);
     }
 
     /**

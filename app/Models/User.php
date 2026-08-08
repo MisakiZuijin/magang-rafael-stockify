@@ -4,11 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;  // ← GANTI INI
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Model
+class User extends Authenticatable  // ← extends Authenticatable, bukan Model
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -18,18 +18,9 @@ class User extends Model
         'name',
         'email',
         'password',
-        'role'
+        'role',
+        'remember_token',
     ];
-
-    public function getRememberTokenName()
-    {
-        return null; // atau return string kosong
-    }
-
-    public function setRememberToken($value)
-    {
-        // kosongkan, tidak simpan apa-apa
-    }
 
     protected $hidden = [
         'password',
@@ -43,7 +34,11 @@ class User extends Model
         ];
     }
 
-    // Scope untuk filter berdasarkan role
+    // Hapus method remember token manual ini (tidak perlu kalau extends Authenticatable):
+    // public function getRememberTokenName() { return null; }
+    // public function setRememberToken($value) { }
+
+    // Scope
     public function scopeByRole($query, string $role)
     {
         return $query->where('role', $role);
@@ -52,7 +47,17 @@ class User extends Model
     // Helper cek role
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return $this->role === 'Admin';
+    }
+
+    public function isManager(): bool
+    {
+        return $this->role === 'Manager Gudang';
+    }
+
+    public function isStaff(): bool
+    {
+        return $this->role === 'Staff Gudang';
     }
 
     public function stockTransactions(): HasMany

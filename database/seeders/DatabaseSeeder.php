@@ -23,5 +23,26 @@ class DatabaseSeeder extends Seeder
                 ])->create()
             ]
         )->create();
+
+        \App\Models\User::factory([
+            'name' => 'Rafael Theo Santoso',
+            'email' => 'theo@gmail.com',
+            'password' => bcrypt('password'),
+            'role' => 'Admin',
+        ])->create();
+
+        \App\Models\User::factory([
+            'name' => 'Rafael Theo Santoso',
+            'email' => 'rafael@gmail.com',
+            'password' => bcrypt('password'),
+            'role' => 'Manager Gudang',
+        ])->create();
+
+        \App\Models\User::factory([
+            'name' => 'Rafael Theo Santoso',
+            'email' => 'santoso@gmail.com',
+            'password' => bcrypt('password'),
+            'role' => 'Staff Gudang',
+        ])->create();
     }
 }

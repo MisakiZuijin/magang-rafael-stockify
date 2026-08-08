@@ -11,4 +11,5 @@ interface TransactionRepositoryInterface
     public function getAllWithRelations(array $relations = []): Collection;
     public function getRecentActivities(int $limit = 5): Collection;
     public function findById(int $id): StockTransaction;
+    public function create(array $data): StockTransaction;
 }

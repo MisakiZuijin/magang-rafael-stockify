@@ -15,7 +15,7 @@ class CategoriController extends Controller
 
     public function create(): View
     {
-        return view('pages.admin.adminproduct-form-categori');
+        return view('pages.admin.form.adminproduct-form-categori');
     }
 
     public function store(Request $request): RedirectResponse
@@ -37,7 +37,7 @@ class CategoriController extends Controller
     public function edit(int $id): View
     {
         $category = $this->categoryService->getCategoryById($id);
-        return view('pages.admin.adminproduct-form-categori', compact('category'));
+        return view('pages.admin.form.adminproduct-form-categori', compact('category'));
     }
 
     public function update(Request $request, int $id): RedirectResponse
