@@ -56,56 +56,32 @@ Route::post(
 // ==========================================
 Route::middleware(['auth', 'role:Admin'])->group(function () {
 
+    Route::get('/activities/full', [AdminDashboardController::class, 'fullActivities'])->name('activities.full');
+
     // Dashboard
-    Route::get(
-        '/dashboard',
-        [AdminDashboardController::class, 'index']
-    )->name('dashboard');
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
-    // Produk
-    Route::resource(
-        'products',
-        ProductController::class
-    );
+    // === PRODUK (Full List dulu, baru Resource) ===
+    Route::get('/products/full', [ProductController::class, 'full'])->name('products.full');
+    Route::get('/products/export', [ProductController::class, 'export'])->name('products.export');
+    Route::post('/products/import', [ProductController::class, 'import'])->name('products.import');
+    Route::resource('products', ProductController::class);
 
-    // Kategori
-    Route::resource(
-        'categories',
-        CategoriController::class
-    )->only(['create', 'store', 'edit', 'update', 'destroy']);
+    // === SUPPLIER (Full List) ===
+    Route::get('/suppliers/full', [SupplierController::class, 'full'])->name('suppliers.full');
+    Route::resource('suppliers', SupplierController::class);
 
-    // Atribut Produk
-    Route::resource(
-        'product-attributs',
-        ProductAttributController::class
-    )->only(['create', 'store', 'edit', 'update', 'destroy']);
+    // === KATEGORI (Full List) ===
+    Route::get('/categories/full', [CategoriController::class, 'full'])->name('categories.full');
+    Route::resource('categories', CategoriController::class)->only(['create', 'store', 'edit', 'update', 'destroy']);
 
-    Route::get(
-        '/stock',
-        [StockController::class, 'index']
-    )->name('stock.index');
+    // === ATRIBUT PRODUK (Full List) ===
+    Route::get('/product-attributs/full', [ProductAttributController::class, 'full'])->name('product-attributs.full');
+    Route::resource('product-attributs', ProductAttributController::class)->only(['create', 'store', 'edit', 'update', 'destroy']);
 
-    Route::post(
-        '/stock/opname',
-        [StockController::class, 'opname']
-    )->name('stock.opname');
-
-    Route::post(
-        '/stock/minimum/{product}',
-        [StockController::class, 'updateMinimum']
-    )->name('stock.minimum.update');
-
-    // Supplier
-    Route::resource(
-        'suppliers',
-        SupplierController::class
-    );
-
-    // Users / Pengguna (Admin)
-    Route::resource(
-        'pengguna',
-        UserController::class
-    )->names([
+    // === PENGGUNA / USERS (Full List) ===
+    Route::get('/pengguna/full', [UserController::class, 'full'])->name('users.full');
+    Route::resource('pengguna', UserController::class)->names([
         'index'   => 'users.index',
         'create'  => 'users.create',
         'store'   => 'users.store',
@@ -114,30 +90,22 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
         'destroy' => 'users.destroy',
     ]);
 
-    // Laporan
-    Route::get(
-        '/reports',
-        [ReportController::class, 'index']
-    )->name('reports.index');
+    // === TRANSAKSI (Full List) ===
+    Route::get('/transactions/full', [TransactionController::class, 'full'])->name('transactions.full');
+    Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
 
-    // Transaksi
-    Route::get(
-        '/transactions',
-        [TransactionController::class, 'index']
-    )->name('transactions.index');
+    // Stock, Laporan, Settings tetap ...
+    Route::get('/stock', [StockController::class, 'index'])->name('stock.index');
+    Route::post('/stock/opname', [StockController::class, 'opname'])->name('stock.opname');
+    Route::post('/stock/minimum/{product}', [StockController::class, 'updateMinimum'])->name('stock.minimum.update');
+
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
 
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
     Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
 
-    // Users (testing, kalau perlu admin saja)
-    Route::get(
-        '/users',
-        [UserController::class, 'index']
-    )->name('pages.testing');
-    Route::get(
-        '/users/{id}',
-        [UserController::class, 'show']
-    )->name('pages.test');
+    Route::get('/users', [UserController::class, 'index'])->name('pages.testing');
+    Route::get('/users/{id}', [UserController::class, 'show'])->name('pages.test');
 });
 
 // ==========================================

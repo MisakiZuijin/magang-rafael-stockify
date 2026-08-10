@@ -63,4 +63,14 @@ class SupplierController extends Controller
         $this->supplierService->deleteSupplier($id);
         return redirect()->route('suppliers.index')->with('success', 'Supplier berhasil dihapus.');
     }
+
+    public function full(Request $request): View
+    {
+        $query = \App\Models\Supplier::withCount('products');
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+        $suppliers = $query->orderBy('id')->paginate(25)->withQueryString();
+        return view('pages.admin.adminsupplier-full', compact('suppliers'));
+    }
 }

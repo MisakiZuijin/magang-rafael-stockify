@@ -13,7 +13,6 @@
 
     @include('layouts.partials.navbar')
 
-    {{-- 🔧 YIELD sidebar dengan default admin sidebar --}}
     @yield('sidebar', View::make('components.sidebar.admin-sidebar'))
 
     <!-- Overlay -->

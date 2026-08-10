@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Product;
 use App\Services\ProductService;
 use App\Services\CategoriService;
 use App\Services\SupplierService;
@@ -9,6 +10,7 @@ use App\Services\ProductAttributService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ProductController extends Controller
 {
@@ -102,5 +104,163 @@ class ProductController extends Controller
     {
         $this->productService->deleteProduct($id);
         return redirect()->route('products.index')->with('success', 'Produk berhasil dihapus.');
+    }
+
+    public function full(Request $request): View
+    {
+        $query = Product::with('categori');
+
+        // Search
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                    ->orWhere('sku', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        $products = $query->orderBy('id')->paginate(25)->withQueryString();
+
+        return view('pages.admin.adminproduct-full', compact('products'));
+    }
+
+    public function export(): StreamedResponse
+    {
+        $products = Product::with(['categori', 'supplier'])->get();
+
+        $headers = [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="produk_' . now()->format('Ymd_His') . '.csv"',
+        ];
+
+        $callback = function () use ($products) {
+            $file = fopen('php://output', 'w');
+
+            // BOM agar Excel membaca UTF-8 dengan benar
+            fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
+            // Header kolom
+            fputcsv($file, [
+                'ID',
+                'Nama',
+                'SKU',
+                'Kategori_ID',
+                'Supplier_ID',
+                'Harga_Beli',
+                'Harga_Jual',
+                'Stok',
+                'Stok_Minimum',
+                'Deskripsi'
+            ]);
+
+            foreach ($products as $p) {
+                fputcsv($file, [
+                    $p->id,
+                    $p->name,
+                    $p->sku,
+                    $p->category_id,
+                    $p->supplier_id,
+                    $p->purchase_price,
+                    $p->selling_price,
+                    $p->stock,
+                    $p->minimum_stock,
+                    $p->description ?? '',
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Import produk dari CSV
+     */
+    public function import(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'csv_file' => ['required', 'file', 'mimes:csv,txt', 'max:5120'],
+        ]);
+
+        $file   = $request->file('csv_file');
+        $handle = fopen($file->getRealPath(), 'r');
+
+        // Lewati BOM UTF-8 kalau ada
+        $bom = fread($handle, 3);
+        if ($bom !== "\xEF\xBB\xBF") {
+            rewind($handle);
+        }
+
+        // Baca header
+        $header = fgetcsv($handle);
+        if (!$header) {
+            fclose($handle);
+            return back()->with('error', 'File CSV kosong atau tidak valid.');
+        }
+
+        $count   = 0;
+        $errors  = [];
+        $rowNum  = 1; // baris 0 = header
+
+        while (($row = fgetcsv($handle)) !== false) {
+            $rowNum++;
+
+            if (count($row) < 10) {
+                continue;
+            }
+
+            // Mapping berdasarkan urutan kolom export
+            $id             = trim($row[0] ?? '');
+            $name           = trim($row[1] ?? '');
+            $sku            = trim($row[2] ?? '');
+            $categoryId     = trim($row[3] ?? '');
+            $supplierId     = trim($row[4] ?? '');
+            $purchasePrice  = trim($row[5] ?? '');
+            $sellingPrice   = trim($row[6] ?? '');
+            $stock          = trim($row[7] ?? '');
+            $minimumStock   = trim($row[8] ?? '');
+            $description    = trim($row[9] ?? '');
+
+            if (empty($name) || empty($sku)) {
+                $errors[] = "Baris {$rowNum}: Nama dan SKU wajib diisi.";
+                continue;
+            }
+
+            // Cek SKU duplikat (kalau insert baru)
+            $existing = Product::where('sku', $sku)->first();
+
+            $data = [
+                'name'           => $name,
+                'sku'            => $sku,
+                'category_id'    => is_numeric($categoryId) ? (int) $categoryId : null,
+                'supplier_id'    => is_numeric($supplierId) ? (int) $supplierId : null,
+                'purchase_price' => (float) str_replace('.', '', $purchasePrice),
+                'selling_price'  => (float) str_replace('.', '', $sellingPrice),
+                'stock'          => (int) $stock,
+                'minimum_stock'  => (int) $minimumStock,
+                'description'    => $description,
+            ];
+
+            if ($existing) {
+                $existing->update($data);
+                $count++;
+            } else {
+                Product::create($data);
+                $count++;
+            }
+        }
+
+        fclose($handle);
+
+        $message = "{$count} produk berhasil diimpor.";
+        if (!empty($errors)) {
+            $errorMsg = implode(', ', array_slice($errors, 0, 3));
+            if (count($errors) > 3) {
+                $errorMsg .= ' (+' . (count($errors) - 3) . ' error lainnya)';
+            }
+            return back()->with('success', $message)->with('error', $errorMsg);
+        }
+
+        return back()->with('success', $message);
     }
 }

@@ -69,4 +69,15 @@ class UserController extends Controller
         $this->userService->deleteUser($id);
         return redirect()->route('users.index')->with('success', 'Pengguna berhasil dihapus.');
     }
+
+    public function full(Request $request): View
+    {
+        $query = \App\Models\User::query();
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%')
+                ->orWhere('email', 'like', '%' . $request->search . '%');
+        }
+        $users = $query->orderBy('id')->paginate(25)->withQueryString();
+        return view('pages.admin.adminuser-full', compact('users'));
+    }
 }
