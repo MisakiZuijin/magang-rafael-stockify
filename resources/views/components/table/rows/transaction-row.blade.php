@@ -15,7 +15,8 @@
 
     @if($showAction)
     <td class="px-4 py-3">
-        <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">Detail</button>
+        {{-- BARU: Link ke halaman detail --}}
+        <a href="{{ route('transactions.show', $transaction->id) }}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">Detail</a>
     </td>
     @endif
 </tr>

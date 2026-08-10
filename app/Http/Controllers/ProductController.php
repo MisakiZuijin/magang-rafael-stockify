@@ -64,7 +64,31 @@ class ProductController extends Controller
     public function show(int $id): View
     {
         $product = $this->productService->getProductById($id);
-        return view('pages.admin.adminproduct', compact('product'));
+
+        // Tentukan back route berdasarkan role user
+        $backRoute = auth()->user()->role === 'Manager Gudang'
+            ? route('manager.dashboard')
+            : route('dashboard');
+
+        return view('pages.show', [
+            'title'       => 'Detail Produk',
+            'subtitle'    => 'SKU: ' . $product->sku,
+            'backRoute'   => $backRoute,
+            'editRoute'   => route('products.edit', $product->id),
+            'deleteRoute' => route('products.destroy', $product->id),
+            'fields'      => [
+                ['label' => 'Gambar', 'value' => $product->image ? asset('storage/' . $product->image) : null, 'type' => 'image'],
+                ['label' => 'Nama Produk', 'value' => $product->name],
+                ['label' => 'SKU', 'value' => $product->sku],
+                ['label' => 'Kategori', 'value' => $product->categori?->name],
+                ['label' => 'Supplier', 'value' => $product->supplier?->name],
+                ['label' => 'Harga Beli', 'value' => $product->purchase_price, 'type' => 'money'],
+                ['label' => 'Harga Jual', 'value' => $product->selling_price, 'type' => 'money'],
+                ['label' => 'Stok Tersedia', 'value' => $product->stock, 'type' => 'stock'],
+                ['label' => 'Stok Minimum', 'value' => $product->minimum_stock],
+                ['label' => 'Deskripsi', 'value' => $product->description],
+            ],
+        ]);
     }
 
     public function edit(int $id): View

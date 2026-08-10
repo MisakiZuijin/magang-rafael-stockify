@@ -93,6 +93,9 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
     // === TRANSAKSI (Full List) ===
     Route::get('/transactions/full', [TransactionController::class, 'full'])->name('transactions.full');
     Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
+    Route::get('/transactions/{transaction}', [TransactionController::class, 'show'])
+        ->name('transactions.show')
+        ->middleware(['auth', 'role:Admin']);
 
     // Stock, Laporan, Settings tetap ...
     Route::get('/stock', [StockController::class, 'index'])->name('stock.index');
@@ -116,6 +119,11 @@ Route::middleware(['auth', 'role:Manager Gudang'])->group(function () {
         '/manager/dashboard',
         [ManagerDashboardController::class, 'index']
     )->name('manager.dashboard');
+
+    Route::get(
+        '/manager/products/critical',
+        [ManagerDashboardController::class, 'criticalProducts']
+    )->name('manager.products.critical');
 
     Route::get(
         '/manager/products',

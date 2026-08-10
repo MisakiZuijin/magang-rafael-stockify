@@ -10,6 +10,6 @@
     </td>
     <td class="px-4 py-3 text-gray-500 dark:text-gray-400">{{ $product->minimum_stock }}</td>
     <td class="px-4 py-3">
-        <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">Detail</button>
+        <a href="{{ route('products.show', $product->id) }}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">Detail</a>
     </td>
 </tr>
