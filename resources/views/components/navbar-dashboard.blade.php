@@ -12,9 +12,18 @@
                     </svg>
                 </button>
 
-                <!-- Logo -->
-                <a href="{{ url('/') }}" class="flex ml-2 md:mr-24">
-                    <span class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">Stockify</span>
+                <!-- Logo & Nama Aplikasi (Dinamis) -->
+                <a href="{{ url('/') }}" class="flex ml-2 md:mr-24 items-center gap-2">
+                    @if(!empty($settings['app_logo']) && file_exists(public_path($settings['app_logo'])))
+                    <img src="{{ asset($settings['app_logo']) }}" alt="Logo" class="h-8 w-auto object-contain">
+                    @else
+                    <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 4h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3m0 3h6m-3 5h3m-6 0h.01M12 16h3m-6 0h.01M10 3v4h4V3h-4Z" />
+                    </svg>
+                    @endif
+                    <span class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">
+                        {{ $settings['app_name'] ?? 'Stockify' }}
+                    </span>
                 </a>
 
                 <!-- Search -->
@@ -92,11 +101,9 @@
 {{-- Script toggle nama/role --}}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const btn = document.getElementById('user-menu-button-2');
         const info = document.getElementById('user-info');
         const dropdown = document.getElementById('dropdown-2');
-
-        if (!btn || !info || !dropdown) return;
+        if (!info || !dropdown) return;
 
         const observer = new MutationObserver(function() {
             if (dropdown.classList.contains('hidden')) {
@@ -107,7 +114,6 @@
                 info.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
             }
         });
-
         observer.observe(dropdown, {
             attributes: true,
             attributeFilter: ['class']

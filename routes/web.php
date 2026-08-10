@@ -6,6 +6,7 @@ use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\ManagerDashboardController;
 use App\Http\Controllers\StaffDashboardController;
 use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\SettingController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\ReportController;
@@ -124,6 +125,9 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
         '/transactions',
         [TransactionController::class, 'index']
     )->name('transactions.index');
+
+    Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
+    Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
 
     // Users (testing, kalau perlu admin saja)
     Route::get(
