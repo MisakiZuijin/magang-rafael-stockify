@@ -66,41 +66,79 @@ $chartData = [
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             {{-- SECTION 1: LAPORAN STOK BARANG --}}
             @php
-            $stockHeaders = ['ID', 'Nama Produk', 'Kategori', 'Supplier', 'Harga Beli', 'Harga Jual', 'Stok', 'Min', 'Status'];
+            $stockHeaders = [
+            ['key' => 'id', 'label' => 'ID'],
+            ['key' => 'name', 'label' => 'Nama Produk'],
+            ['key' => 'category', 'label' => 'Kategori'],
+            ['key' => 'supplier', 'label' => 'Supplier'],
+            ['key' => 'purchase_price', 'label' => 'Harga Beli'],
+            ['key' => 'selling_price', 'label' => 'Harga Jual'],
+            ['key' => 'stock', 'label' => 'Stok'],
+            ['key' => 'minimum_stock', 'label' => 'Min'],
+            'Status',
+            ];
             @endphp
 
             <x-table.data-table
+                tableId="tabel-laporan-stok"
                 :headers="$stockHeaders"
                 title="Laporan Stok Barang"
                 subtitle="Detail stok berdasarkan filter yang dipilih"
                 colSpan="col-span-12"
-                maxHeight="max-h-[400px]">
+                height="h-[400px]"
+                sortColumn="{{ $sortColumn }}"
+                sortDirection="{{ $sortDirection }}"
+                :searchable="true"
+                searchPlaceholder="Cari nama, SKU, kategori, atau supplier..."
+                currentSearch="{{ $search }}">
                 <x-slot name="headerAction">
                     <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-3 py-1 rounded-full">
                         {{ $stockReport->count() }} Produk
                     </span>
                 </x-slot>
 
-                @forelse($stockReport->sortBy('id') as $product)
+                @forelse($stockReport as $product)
                 <x-table.rows.report-stock-row :product="$product" />
                 @empty
                 <tr>
-                    <td colspan="{{ count($stockHeaders) }}" class="px-4 py-8 text-center text-gray-400">Tidak ada data stok yang sesuai filter.</td>
+                    <td colspan="{{ count($stockHeaders) }}" class="px-4 py-8 text-center text-gray-400">
+                        @if($search)
+                        Tidak ada hasil untuk "{{ $search }}".
+                        @else
+                        Tidak ada data stok yang sesuai filter.
+                        @endif
+                    </td>
                 </tr>
                 @endforelse
             </x-table.data-table>
 
             {{-- SECTION 2: LAPORAN TRANSAKSI --}}
             @php
-            $trxHeaders = ['ID', 'Tanggal', 'Produk', 'User', 'Tipe', 'Qty', 'Status', 'Catatan', 'Aksi'];
+            $trxHeaders = [
+            ['key' => 'id', 'label' => 'ID'],
+            ['key' => 'date', 'label' => 'Tanggal'],
+            ['key' => 'product', 'label' => 'Produk'],
+            ['key' => 'user', 'label' => 'User'],
+            ['key' => 'type', 'label' => 'Tipe'],
+            ['key' => 'quantity', 'label' => 'Qty'],
+            ['key' => 'status', 'label' => 'Status'],
+            'Catatan',
+            'Aksi',
+            ];
             @endphp
 
             <x-table.data-table
+                tableId="tabel-laporan-transaksi"
                 :headers="$trxHeaders"
                 title="Laporan Transaksi Barang Masuk & Keluar"
                 :subtitle="'Periode: ' . \Carbon\Carbon::parse($filters['start_date'])->format('d M Y') . ' - ' . \Carbon\Carbon::parse($filters['end_date'])->format('d M Y')"
                 colSpan="col-span-12"
-                maxHeight="max-h-[400px]">
+                height="h-[400px]"
+                sortColumn="{{ $sortColumn }}"
+                sortDirection="{{ $sortDirection }}"
+                :searchable="true"
+                searchPlaceholder="Cari produk, user, status, atau catatan..."
+                currentSearch="{{ $search }}">
                 <x-slot name="headerAction">
                     <div class="flex gap-2">
                         <span class="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-3 py-1 rounded-full">Masuk: {{ $transactionSummary['count_masuk'] }}x</span>
@@ -108,11 +146,17 @@ $chartData = [
                     </div>
                 </x-slot>
 
-                @forelse($transactionReport->sortBy('date') as $trx)
+                @forelse($transactionReport as $trx)
                 <x-table.rows.manager-report-transaction-row :trx="$trx" />
                 @empty
                 <tr>
-                    <td colspan="{{ count($trxHeaders) }}" class="px-4 py-8 text-center text-gray-400">Tidak ada data transaksi pada periode ini.</td>
+                    <td colspan="{{ count($trxHeaders) }}" class="px-4 py-8 text-center text-gray-400">
+                        @if($search)
+                        Tidak ada hasil untuk "{{ $search }}".
+                        @else
+                        Tidak ada data transaksi pada periode ini.
+                        @endif
+                    </td>
                 </tr>
                 @endforelse
             </x-table.data-table>

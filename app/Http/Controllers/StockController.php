@@ -105,34 +105,48 @@ class StockController extends Controller
             ->with('success', 'Minimum stock berhasil diperbarui.');
     }
 
-    public function manager(): View
+    public function manager(Request $request): View
     {
-        $transactions = $this->stockService->getAllTransactions();
-        $products     = $this->productService->getAllProducts();
-        $today        = now()->toDateString();
+        $sortColumn    = $request->input('sort', 'id');
+        $sortDirection = $request->input('direction', 'asc');
+        $search        = $request->input('search', '');
 
-        // Transaksi Masuk (50 terbaru)
-        $incomingTransactions = $transactions
-            ->where('type', 'Masuk')
-            ->sortByDesc('date')
-            ->values();
+        $today = now()->toDateString();
 
-        // Transaksi Keluar (50 terbaru)
-        $outgoingTransactions = $transactions
-            ->where('type', 'Keluar')
-            ->sortByDesc('date')
-            ->values();
+        // Ambil semua transaksi
+        $transactions = \App\Models\StockTransaction::with(['product', 'user'])->get();
 
-        // Stat hari ini
-        $todayIncoming = $incomingTransactions->filter(
-            fn($t) => !empty($t->date) && Carbon::parse($t->date)->toDateString() === $today
-        );
+        // Filter & Search Masuk
+        $incomingTransactions = $transactions->filter(fn($t) => ($t->type ?? '') === 'Masuk');
+        if ($search) {
+            $s = strtolower($search);
+            $incomingTransactions = $incomingTransactions->filter(
+                fn($t) =>
+                str_contains(strtolower($t->product?->name ?? ''), $s) ||
+                    str_contains(strtolower($t->status ?? ''), $s) ||
+                    str_contains(strtolower((string) $t->id), $s)
+            )->values();
+        }
+        $incomingTransactions = $this->sortTransactions($incomingTransactions, $sortColumn, $sortDirection);
 
-        $todayOutgoing = $outgoingTransactions->filter(
-            fn($t) => !empty($t->date) && Carbon::parse($t->date)->toDateString() === $today
-        );
+        // Filter & Search Keluar
+        $outgoingTransactions = $transactions->filter(fn($t) => ($t->type ?? '') === 'Keluar');
+        if ($search) {
+            $s = strtolower($search);
+            $outgoingTransactions = $outgoingTransactions->filter(
+                fn($t) =>
+                str_contains(strtolower($t->product?->name ?? ''), $s) ||
+                    str_contains(strtolower($t->status ?? ''), $s) ||
+                    str_contains(strtolower((string) $t->id), $s)
+            )->values();
+        }
+        $outgoingTransactions = $this->sortTransactions($outgoingTransactions, $sortColumn, $sortDirection);
 
-        $pendingCount = $transactions->where('status', 'Pending')->count();
+        $todayIncoming = $transactions->filter(fn($t) => ($t->type ?? '') === 'Masuk' && !empty($t->date) && \Carbon\Carbon::parse($t->date)->toDateString() === $today);
+        $todayOutgoing = $transactions->filter(fn($t) => ($t->type ?? '') === 'Keluar' && !empty($t->date) && \Carbon\Carbon::parse($t->date)->toDateString() === $today);
+        $pendingCount  = $transactions->where('status', 'Pending')->count();
+
+        $products = \App\Models\Product::orderBy('name')->get();
 
         return view('pages.manager.managerstock', compact(
             'incomingTransactions',
@@ -140,7 +154,22 @@ class StockController extends Controller
             'todayIncoming',
             'todayOutgoing',
             'pendingCount',
-            'products'
+            'products',
+            'sortColumn',
+            'sortDirection',
+            'search'
         ));
+    }
+
+    private function sortTransactions($collection, string $column, string $direction)
+    {
+        $desc = $direction === 'desc';
+        return match ($column) {
+            'date'     => $collection->sortBy('date', SORT_REGULAR, $desc),
+            'product'  => $collection->sortBy(fn($t) => $t->product?->name ?? '', SORT_REGULAR, $desc),
+            'quantity' => $collection->sortBy('quantity', SORT_REGULAR, $desc),
+            'status'   => $collection->sortBy('status', SORT_REGULAR, $desc),
+            default    => $collection->sortBy('id', SORT_REGULAR, $desc),
+        };
     }
 }

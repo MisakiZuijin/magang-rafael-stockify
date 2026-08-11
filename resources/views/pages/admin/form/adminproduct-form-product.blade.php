@@ -133,7 +133,7 @@
                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror
                         @if(isset($product) && $product->image)
-                        <img src="{{ asset('storage/' . $product->image) }}" class="mt-2 h-20 rounded border border-gray-200 dark:border-gray-600" alt="Current">
+                        <img src="{{ asset('images/' . $product->image) }}" class="mt-2 h-20 rounded border border-gray-200 dark:border-gray-600" alt="Current">
                         @endif
                     </div>
 

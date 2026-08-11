@@ -29,10 +29,41 @@ class ProductController extends Controller
         return view('pages.admin.adminproduct', compact('products', 'categories', 'productAttributs'));
     }
 
-    public function managerIndex(): View
+    public function managerIndex(Request $request): View
     {
         $products = $this->productService->getAllProducts();
-        return view('pages.manager.managerproduct', compact('products'));
+
+        $sortColumn    = $request->input('sort', 'id');
+        $sortDirection = $request->input('direction', 'asc');
+        $search        = $request->input('search', '');
+
+        // Search
+        if ($search) {
+            $s = strtolower($search);
+            $products = $products->filter(function ($p) use ($s) {
+                return str_contains(strtolower($p->name), $s)
+                    || str_contains(strtolower($p->sku ?? ''), $s)
+                    || str_contains(strtolower($p->categori?->name ?? ''), $s)
+                    || str_contains(strtolower((string) $p->id), $s);
+            })->values();
+        }
+
+        // Sort
+        $desc = $sortDirection === 'desc';
+        $products = match ($sortColumn) {
+            'name'          => $products->sortBy('name', SORT_REGULAR, $desc),
+            'category'      => $products->sortBy(fn($p) => $p->categori?->name ?? '', SORT_REGULAR, $desc),
+            'selling_price' => $products->sortBy('selling_price', SORT_REGULAR, $desc),
+            'stock'         => $products->sortBy('stock', SORT_REGULAR, $desc),
+            default         => $products->sortBy('id', SORT_REGULAR, $desc),
+        };
+
+        return view('pages.manager.managerproduct', compact(
+            'products',
+            'sortColumn',
+            'sortDirection',
+            'search'
+        ));
     }
 
     public function create(): View
@@ -63,8 +94,15 @@ class ProductController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('products', 'public');
+            $file     = $request->file('image');
+            $filename = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
+            $file->move(public_path('images'), $filename);
+            $validated['image'] = $filename;
         }
+
+        // if ($request->hasFile('image')) {
+        //     $validated['image'] = $request->file('image')->store('products', 'public');
+        // }
 
         $this->productService->createProduct($validated);
 
@@ -132,9 +170,22 @@ class ProductController extends Controller
             'image'          => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
         ]);
 
+        $product = $this->productService->getProductById($id);
+
         if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('products', 'public');
+            if ($product->image && file_exists(public_path('images/' . $product->image))) {
+                unlink(public_path('images/' . $product->image));
+            }
+
+            $file     = $request->file('image');
+            $filename = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
+            $file->move(public_path('images'), $filename);
+            $validated['image'] = $filename;
         }
+
+        // if ($request->hasFile('image')) {
+        //     $validated['image'] = $request->file('image')->store('products', 'public');
+        // }
 
         $this->productService->updateProduct($id, $validated);
 
@@ -145,7 +196,14 @@ class ProductController extends Controller
 
     public function destroy(int $id): RedirectResponse
     {
+        $product = $this->productService->getProductById($id);
+
+        if ($product->image && file_exists(public_path('images/' . $product->image))) {
+            unlink(public_path('images/' . $product->image));
+        }
+
         $this->productService->deleteProduct($id);
+
         return redirect()->route('products.index')->with('success', 'Produk berhasil dihapus.');
     }
 

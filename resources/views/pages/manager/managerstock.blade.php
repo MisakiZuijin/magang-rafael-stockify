@@ -50,15 +50,27 @@
             {{-- BARANG MASUK --}}
             <div class="col-span-12 lg:col-span-6">
                 @php
-                $incomingHeaders = ['ID', 'Tanggal', 'Produk', 'Qty', 'Status'];
+                $incomingHeaders = [
+                ['key' => 'id', 'label' => 'ID'],
+                ['key' => 'date', 'label' => 'Tanggal'],
+                ['key' => 'product', 'label' => 'Produk'],
+                ['key' => 'quantity', 'label' => 'Qty'],
+                ['key' => 'status', 'label' => 'Status'],
+                ];
                 @endphp
 
                 <x-table.data-table
+                    tableId="tabel-stock-masuk"
                     :headers="$incomingHeaders"
                     title="Barang Masuk"
                     subtitle="Riwayat penerimaan barang"
                     colSpan="col-span-12"
-                    maxHeight="max-h-[350px]">
+                    height="h-[350px]"
+                    sortColumn="{{ $sortColumn }}"
+                    sortDirection="{{ $sortDirection }}"
+                    :searchable="true"
+                    searchPlaceholder="Cari transaksi masuk..."
+                    currentSearch="{{ $search }}">
                     <x-slot:headerAction>
                         <a href="{{ route('manager.transactions.create') }}?type=Masuk" class="inline-flex items-center gap-1.5 bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -72,7 +84,13 @@
                     <x-table.rows.manager-transaction-row :trx="$trx" />
                     @empty
                     <tr>
-                        <td colspan="{{ count($incomingHeaders) }}" class="px-4 py-8 text-center text-gray-400">Belum ada barang masuk.</td>
+                        <td colspan="{{ count($incomingHeaders) }}" class="px-4 py-8 text-center text-gray-400">
+                            @if($search)
+                            Tidak ada hasil untuk "{{ $search }}".
+                            @else
+                            Belum ada barang masuk.
+                            @endif
+                        </td>
                     </tr>
                     @endforelse
                 </x-table.data-table>
@@ -81,15 +99,27 @@
             {{-- BARANG KELUAR --}}
             <div class="col-span-12 lg:col-span-6">
                 @php
-                $outgoingHeaders = ['ID', 'Tanggal', 'Produk', 'Qty', 'Status'];
+                $outgoingHeaders = [
+                ['key' => 'id', 'label' => 'ID'],
+                ['key' => 'date', 'label' => 'Tanggal'],
+                ['key' => 'product', 'label' => 'Produk'],
+                ['key' => 'quantity', 'label' => 'Qty'],
+                ['key' => 'status', 'label' => 'Status'],
+                ];
                 @endphp
 
                 <x-table.data-table
+                    tableId="tabel-stock-keluar"
                     :headers="$outgoingHeaders"
                     title="Barang Keluar"
                     subtitle="Riwayat pengeluaran barang"
                     colSpan="col-span-12"
-                    maxHeight="max-h-[350px]">
+                    height="h-[350px]"
+                    sortColumn="{{ $sortColumn }}"
+                    sortDirection="{{ $sortDirection }}"
+                    :searchable="true"
+                    searchPlaceholder="Cari transaksi keluar..."
+                    currentSearch="{{ $search }}">
                     <x-slot:headerAction>
                         <a href="{{ route('manager.transactions.create') }}?type=Keluar" class="inline-flex items-center gap-1.5 bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-700 transition">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -103,7 +133,13 @@
                     <x-table.rows.manager-transaction-row :trx="$trx" />
                     @empty
                     <tr>
-                        <td colspan="{{ count($outgoingHeaders) }}" class="px-4 py-8 text-center text-gray-400">Belum ada barang keluar.</td>
+                        <td colspan="{{ count($outgoingHeaders) }}" class="px-4 py-8 text-center text-gray-400">
+                            @if($search)
+                            Tidak ada hasil untuk "{{ $search }}".
+                            @else
+                            Belum ada barang keluar.
+                            @endif
+                        </td>
                     </tr>
                     @endforelse
                 </x-table.data-table>

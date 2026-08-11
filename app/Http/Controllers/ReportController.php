@@ -6,6 +6,7 @@ use App\Services\ReportService;
 use App\Services\CategoriService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Illuminate\Support\Collection;
 
 class ReportController extends Controller
 {
@@ -15,7 +16,7 @@ class ReportController extends Controller
     ) {}
 
     /**
-     * Laporan untuk Admin (existing)
+     * Laporan untuk Admin
      */
     public function index(Request $request): View
     {
@@ -28,11 +29,20 @@ class ReportController extends Controller
             'stock_status' => $request->input('stock_status'),
         ];
 
+        $sortColumn    = $request->input('sort', 'id');
+        $sortDirection = $request->input('direction', 'asc');
+        $search        = $request->input('search', '');
+
+        // === DATA STOK: Search + Sort ===
         $stockReport = $this->reportService->getStockReport(
             $filters['stock_status'],
             $filters['category_id']
         );
 
+        $stockReport = $this->applySearch($stockReport, $search, 'stock');
+        $stockReport = $this->applySort($stockReport, $sortColumn, $sortDirection, 'stock');
+
+        // === DATA TRANSAKSI: Search + Sort ===
         $transactionReport = $this->reportService->getTransactionReport(
             $filters['start_date'],
             $filters['end_date'],
@@ -41,6 +51,10 @@ class ReportController extends Controller
             $filters['user_id']
         );
 
+        $transactionReport = $this->applySearch($transactionReport, $search, 'transaction');
+        $transactionReport = $this->applySort($transactionReport, $sortColumn, $sortDirection, 'transaction');
+
+        // Data lainnya
         $userActivityReport = $this->reportService->getUserActivityReport(
             $filters['start_date'],
             $filters['end_date'],
@@ -77,7 +91,10 @@ class ReportController extends Controller
             'stockChart',
             'transactionChart',
             'categories',
-            'filters'
+            'filters',
+            'sortColumn',
+            'sortDirection',
+            'search'
         ));
     }
 
@@ -92,21 +109,32 @@ class ReportController extends Controller
             'category_id'  => $request->input('category_id'),
             'type'         => $request->input('type'),
             'stock_status' => $request->input('stock_status'),
-            // user_id sengaja tidak ada karena manager tidak butuh filter per pengguna
         ];
 
+        $sortColumn    = $request->input('sort', 'id');
+        $sortDirection = $request->input('direction', 'asc');
+        $search        = $request->input('search', '');
+
+        // === DATA STOK: Search + Sort ===
         $stockReport = $this->reportService->getStockReport(
             $filters['stock_status'],
             $filters['category_id']
         );
 
+        $stockReport = $this->applySearch($stockReport, $search, 'stock');
+        $stockReport = $this->applySort($stockReport, $sortColumn, $sortDirection, 'stock');
+
+        // === DATA TRANSAKSI: Search + Sort ===
         $transactionReport = $this->reportService->getTransactionReport(
             $filters['start_date'],
             $filters['end_date'],
             $filters['type'],
             $filters['category_id'],
-            null // user_id selalu null untuk manager
+            null
         );
+
+        $transactionReport = $this->applySearch($transactionReport, $search, 'transaction');
+        $transactionReport = $this->applySort($transactionReport, $sortColumn, $sortDirection, 'transaction');
 
         $stockSummary = $this->reportService->getStockSummary();
         $transactionSummary = $this->reportService->getTransactionSummary(
@@ -124,7 +152,7 @@ class ReportController extends Controller
             $filters['end_date'],
             $filters['type'],
             $filters['category_id'],
-            null // user_id selalu null untuk manager
+            null
         );
 
         $categories = $this->categoryService->getAllCategories();
@@ -137,7 +165,69 @@ class ReportController extends Controller
             'stockChart',
             'transactionChart',
             'categories',
-            'filters'
+            'filters',
+            'sortColumn',
+            'sortDirection',
+            'search'
         ));
+    }
+
+    /**
+     * Filter collection berdasarkan keyword search
+     */
+    private function applySearch(Collection $collection, string $search, string $type): Collection
+    {
+        if (empty($search)) {
+            return $collection;
+        }
+
+        $s = strtolower($search);
+
+        return $collection->filter(function ($item) use ($s, $type) {
+            if ($type === 'stock') {
+                /** @var \App\Models\Product $item */
+                return str_contains(strtolower($item->name), $s)
+                    || str_contains(strtolower($item->sku ?? ''), $s)
+                    || str_contains(strtolower($item->categori?->name ?? ''), $s)
+                    || str_contains(strtolower($item->supplier?->name ?? ''), $s)
+                    || str_contains(strtolower((string) $item->id), $s);
+            }
+
+            // type === 'transaction'
+            /** @var \App\Models\StockTransaction $item */
+            return str_contains(strtolower($item->product?->name ?? ''), $s)
+                || str_contains(strtolower($item->user?->name ?? ''), $s)
+                || str_contains(strtolower($item->status ?? ''), $s)
+                || str_contains(strtolower($item->note ?? ''), $s)
+                || str_contains(strtolower((string) $item->id), $s)
+                || str_contains(strtolower($item->type ?? ''), $s);
+        })->values();
+    }
+
+    /**
+     * Sort collection berdasarkan kolom dan arah
+     */
+    private function applySort(Collection $collection, string $column, string $direction, string $type): Collection
+    {
+        $desc = $direction === 'desc';
+
+        if ($type === 'stock') {
+            return match ($column) {
+                'category' => $collection->sortBy(fn($p) => $p->categori?->name ?? '', SORT_REGULAR, $desc),
+                'supplier' => $collection->sortBy(fn($p) => $p->supplier?->name ?? '', SORT_REGULAR, $desc),
+                'name', 'sku', 'purchase_price', 'selling_price', 'stock', 'minimum_stock', 'id'
+                => $collection->sortBy($column, SORT_REGULAR, $desc),
+                default => $collection->sortBy('id', SORT_REGULAR, $desc),
+            };
+        }
+
+        // type === 'transaction'
+        return match ($column) {
+            'product' => $collection->sortBy(fn($t) => $t->product?->name ?? '', SORT_REGULAR, $desc),
+            'user'    => $collection->sortBy(fn($t) => $t->user?->name ?? '', SORT_REGULAR, $desc),
+            'date', 'quantity', 'status', 'type', 'id'
+            => $collection->sortBy($column, SORT_REGULAR, $desc),
+            default => $collection->sortBy('id', SORT_REGULAR, $desc),
+        };
     }
 }

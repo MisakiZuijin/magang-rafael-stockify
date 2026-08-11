@@ -5,7 +5,7 @@
     <td class="px-4 py-3 font-mono text-gray-500 dark:text-gray-400">#{{ $product->id }}</td>
     <td class="px-4 py-3">
         @if($product->image)
-        <img src="{{ asset('storage/' . $product->image) }}" class="w-10 h-10 rounded-lg object-cover">
+        <img src="{{ asset('images/' . $product->image) }}" class="w-10 h-10 rounded-lg object-cover">
         @else
         <div class="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-400">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

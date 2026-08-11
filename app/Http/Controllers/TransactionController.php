@@ -58,7 +58,7 @@ class TransactionController extends Controller
         $transaction = $this->transactionService->getTransactionById($id);
 
         $backRoute = auth()->user()->role === 'Manager Gudang'
-            ? route('manager.dashboard')
+            ? route('manager.laporan')
             : route('dashboard');
 
         return view('pages.show', [

@@ -16,7 +16,6 @@
         @if(session('success'))
         <x-alert.flash-message type="success" :message="session('success')" />
         @endif
-
         @if(session('error'))
         <x-alert.flash-message type="error" :message="session('error')" />
         @endif
@@ -28,20 +27,40 @@
 
             {{-- TABEL SUPPLIER --}}
             @php
-            $supplierHeaders = ['ID', 'Nama', 'Email', 'Telepon', 'Alamat', 'Produk'];
+            $supplierHeaders = [
+            ['key' => 'id', 'label' => 'ID'],
+            ['key' => 'name', 'label' => 'Nama'],
+            ['key' => 'email', 'label' => 'Email'],
+            ['key' => 'phone', 'label' => 'Telepon'],
+            ['key' => 'address', 'label' => 'Alamat'],
+            ['key' => 'products_count', 'label' => 'Produk'],
+            ];
             @endphp
 
             <x-table.data-table
+                tableId="tabel-supplier"
                 :headers="$supplierHeaders"
                 title="Daftar Supplier"
-                maxHeight="max-h-[400px]"
-                colSpan="col-span-12">
+                subtitle="Semua supplier yang terdaftar"
+                colSpan="col-span-12"
+                height="h-[400px]"
+                sortColumn="{{ $sortColumn }}"
+                sortDirection="{{ $sortDirection }}"
+                :searchable="true"
+                searchPlaceholder="Cari nama, email, telepon, atau alamat..."
+                currentSearch="{{ $search }}">
 
-                @forelse($suppliers->sortBy('id') as $supplier)
+                @forelse($suppliers as $supplier)
                 <x-table.rows.manager-supplier-row :supplier="$supplier" />
                 @empty
                 <tr>
-                    <td colspan="{{ count($supplierHeaders) }}" class="px-4 py-8 text-center text-gray-400">Belum ada supplier.</td>
+                    <td colspan="{{ count($supplierHeaders) }}" class="px-4 py-8 text-center text-gray-400">
+                        @if($search)
+                        Tidak ada hasil untuk "{{ $search }}".
+                        @else
+                        Belum ada supplier.
+                        @endif
+                    </td>
                 </tr>
                 @endforelse
             </x-table.data-table>
