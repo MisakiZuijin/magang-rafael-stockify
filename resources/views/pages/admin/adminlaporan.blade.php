@@ -63,58 +63,60 @@ $chartData = [
             <x-charts.report-chart title="Transaksi Harian ({{ \Carbon\Carbon::parse($filters['start_date'])->format('d M Y') }} - {{ \Carbon\Carbon::parse($filters['end_date'])->format('d M Y') }})" canvasId="transactionDailyChart" />
         </div>
 
-        {{-- SECTION 1: LAPORAN STOK BARANG --}}
-        @php
-        $stockHeaders = ['ID', 'Nama Produk', 'Kategori', 'Supplier', 'Harga Beli', 'Harga Jual', 'Stok', 'Min', 'Status'];
-        @endphp
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {{-- SECTION 1: LAPORAN STOK BARANG --}}
+            @php
+            $stockHeaders = ['ID', 'Nama Produk', 'Kategori', 'Supplier', 'Harga Beli', 'Harga Jual', 'Stok', 'Min', 'Status'];
+            @endphp
 
-        <x-table.data-table
-            :headers="$stockHeaders"
-            title="Laporan Stok Barang"
-            subtitle="Detail stok berdasarkan filter yang dipilih"
-            colSpan="col-span-12"
-            maxHeight="max-h-[400px]">
-            <x-slot name="headerAction">
-                <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-3 py-1 rounded-full">
-                    {{ $stockReport->count() }} Produk
-                </span>
-            </x-slot>
+            <x-table.data-table
+                :headers="$stockHeaders"
+                title="Laporan Stok Barang"
+                subtitle="Detail stok berdasarkan filter yang dipilih"
+                colSpan="col-span-12"
+                maxHeight="max-h-[400px]">
+                <x-slot name="headerAction">
+                    <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-3 py-1 rounded-full">
+                        {{ $stockReport->count() }} Produk
+                    </span>
+                </x-slot>
 
-            @forelse($stockReport->sortBy('id') as $product)
-            <x-table.rows.report-stock-row :product="$product" />
-            @empty
-            <tr>
-                <td colspan="{{ count($stockHeaders) }}" class="px-4 py-8 text-center text-gray-400">Tidak ada data stok yang sesuai filter.</td>
-            </tr>
-            @endforelse
-        </x-table.data-table>
+                @forelse($stockReport->sortBy('id') as $product)
+                <x-table.rows.report-stock-row :product="$product" />
+                @empty
+                <tr>
+                    <td colspan="{{ count($stockHeaders) }}" class="px-4 py-8 text-center text-gray-400">Tidak ada data stok yang sesuai filter.</td>
+                </tr>
+                @endforelse
+            </x-table.data-table>
 
-        {{-- SECTION 2: LAPORAN TRANSAKSI --}}
-        @php
-        $trxHeaders = ['ID', 'Tanggal', 'Produk', 'User', 'Tipe', 'Qty', 'Status', 'Catatan'];
-        @endphp
+            {{-- SECTION 2: LAPORAN TRANSAKSI --}}
+            @php
+            $trxHeaders = ['ID', 'Tanggal', 'Produk', 'User', 'Tipe', 'Qty', 'Status', 'Catatan', 'Aksi'];
+            @endphp
 
-        <x-table.data-table
-            :headers="$trxHeaders"
-            title="Laporan Transaksi Barang Masuk & Keluar"
-            :subtitle="'Periode: ' . \Carbon\Carbon::parse($filters['start_date'])->format('d M Y') . ' - ' . \Carbon\Carbon::parse($filters['end_date'])->format('d M Y')"
-            colSpan="col-span-12"
-            maxHeight="max-h-[400px]">
-            <x-slot name="headerAction">
-                <div class="flex gap-2">
-                    <span class="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-3 py-1 rounded-full">Masuk: {{ $transactionSummary['count_masuk'] }}x</span>
-                    <span class="text-xs bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 px-3 py-1 rounded-full">Keluar: {{ $transactionSummary['count_keluar'] }}x</span>
-                </div>
-            </x-slot>
+            <x-table.data-table
+                :headers="$trxHeaders"
+                title="Laporan Transaksi Barang Masuk & Keluar"
+                :subtitle="'Periode: ' . \Carbon\Carbon::parse($filters['start_date'])->format('d M Y') . ' - ' . \Carbon\Carbon::parse($filters['end_date'])->format('d M Y')"
+                colSpan="col-span-12"
+                maxHeight="max-h-[400px]">
+                <x-slot name="headerAction">
+                    <div class="flex gap-2">
+                        <span class="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-3 py-1 rounded-full">Masuk: {{ $transactionSummary['count_masuk'] }}x</span>
+                        <span class="text-xs bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 px-3 py-1 rounded-full">Keluar: {{ $transactionSummary['count_keluar'] }}x</span>
+                    </div>
+                </x-slot>
 
-            @forelse($transactionReport->sortBy('date') as $trx)
-            <x-table.rows.report-transaction-row :trx="$trx" />
-            @empty
-            <tr>
-                <td colspan="{{ count($trxHeaders) }}" class="px-4 py-8 text-center text-gray-400">Tidak ada data transaksi pada periode ini.</td>
-            </tr>
-            @endforelse
-        </x-table.data-table>
+                @forelse($transactionReport->sortBy('date') as $trx)
+                <x-table.rows.report-transaction-row :trx="$trx" />
+                @empty
+                <tr>
+                    <td colspan="{{ count($trxHeaders) }}" class="px-4 py-8 text-center text-gray-400">Tidak ada data transaksi pada periode ini.</td>
+                </tr>
+                @endforelse
+            </x-table.data-table>
+        </div>
 
         {{-- SECTION 3: LAPORAN AKTIVITAS PENGGUNA --}}
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5 mt-6">

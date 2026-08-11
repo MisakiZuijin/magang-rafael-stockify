@@ -159,8 +159,15 @@ Route::middleware(['auth', 'role:Manager Gudang'])->group(function () {
 // 6. STAFF GUDANG
 // ==========================================
 Route::middleware(['auth', 'role:Staff Gudang'])->group(function () {
-    Route::get(
-        '/staff/dashboard',
-        [StaffDashboardController::class, 'index']
-    )->name('staff.dashboard');
+    Route::get('/staff/dashboard', [StaffDashboardController::class, 'Index'])
+        ->name('staff.dashboard');
+
+    Route::get('/staff/stock', [StaffDashboardController::class, 'Stock'])
+        ->name('staff.stock');
+
+    Route::patch('/staff/transactions/{transaction}/confirm', [StaffDashboardController::class, 'confirmTransaction'])
+        ->name('staff.transactions.confirm');
+
+    Route::patch('/staff/transactions/{transaction}/reject', [StaffDashboardController::class, 'rejectTransaction'])
+        ->name('staff.transactions.reject');
 });

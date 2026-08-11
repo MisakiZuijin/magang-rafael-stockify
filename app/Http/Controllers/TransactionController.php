@@ -59,7 +59,7 @@ class TransactionController extends Controller
 
         $backRoute = auth()->user()->role === 'Manager Gudang'
             ? route('manager.dashboard')
-            : route('stock.index');
+            : route('dashboard');
 
         return view('pages.show', [
             'title'       => 'Detail Transaksi',
