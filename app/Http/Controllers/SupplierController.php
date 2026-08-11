@@ -19,6 +19,12 @@ class SupplierController extends Controller
         return view('pages.admin.adminsupplier', compact('suppliers'));
     }
 
+    public function manager(): View
+    {
+        $suppliers = $this->supplierService->getAllSuppliers();
+        return view('pages.manager.managersupplier', compact('suppliers'));
+    }
+
     public function create(): View
     {
         return view('pages.admin.form.adminsupplier-form');

@@ -125,10 +125,34 @@ Route::middleware(['auth', 'role:Manager Gudang'])->group(function () {
         [ManagerDashboardController::class, 'criticalProducts']
     )->name('manager.products.critical');
 
-    Route::get(
-        '/manager/products',
-        [ManagerDashboardController::class, 'index']
-    )->name('manager.products');
+    // ← TAMBAHKAN INI: Manager Products
+    Route::get('/manager/products', [ProductController::class, 'managerIndex'])
+        ->name('manager.products');
+    Route::get('/manager/products/create', [ProductController::class, 'create'])
+        ->name('manager.products.create');
+    Route::post('/manager/products', [ProductController::class, 'store'])
+        ->name('manager.products.store');
+    Route::get('/manager/products/{product}', [ProductController::class, 'show'])
+        ->name('manager.products.show');
+
+    Route::get('/manager/stock', [StockController::class, 'manager'])
+        ->name('manager.stock');
+    Route::post('/manager/stock/opname', [StockController::class, 'managerOpname'])
+        ->name('manager.stock.opname');
+
+    Route::get('/manager/transactions/create', [TransactionController::class, 'managerCreate'])
+        ->name('manager.transactions.create');
+    Route::post('/manager/transactions', [TransactionController::class, 'managerStore'])
+        ->name('manager.transactions.store');
+
+    Route::get('/manager/transactions/{transaction}', [TransactionController::class, 'show'])
+        ->name('manager.transactions.show');
+
+    Route::get('/manager/supplier', [SupplierController::class, 'manager'])
+        ->name('manager.supplier');
+
+    Route::get('/manager/laporan', [ReportController::class, 'managerIndex'])
+        ->name('manager.laporan');
 });
 
 // ==========================================

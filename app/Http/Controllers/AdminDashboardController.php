@@ -64,6 +64,6 @@ class AdminDashboardController extends Controller
 
         $activities = $query->orderByDesc('created_at')->paginate(25)->withQueryString();
 
-        return view('pages.admin.adminactivity-full', compact('activities'));
+        return view('pages.admin.fullview.adminactivity-full', compact('activities'));
     }
 }

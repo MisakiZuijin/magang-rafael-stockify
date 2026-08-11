@@ -1,9 +1,11 @@
-{{-- resources/views/components/form/stock-opname.blade.php --}}
-@props(['products'])
+@props([
+'products',
+'action' => route('stock.opname') // default ke admin
+])
 
 <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-800">
     <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Stock Opname</h2>
-    <form action="{{ route('stock.opname') }}" method="POST" class="space-y-4">
+    <form action="{{ $action }}" method="POST" class="space-y-4">
         @csrf
 
         <div>

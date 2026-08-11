@@ -29,10 +29,20 @@ class ProductController extends Controller
         return view('pages.admin.adminproduct', compact('products', 'categories', 'productAttributs'));
     }
 
+    public function managerIndex(): View
+    {
+        $products = $this->productService->getAllProducts();
+        return view('pages.manager.managerproduct', compact('products'));
+    }
+
     public function create(): View
     {
         $categories = $this->categoryService->getAllCategories();
         $suppliers  = $this->supplierService->getAllSuppliers();
+
+        if (auth()->user()->role === 'Manager Gudang') {
+            return view('pages.manager.form.managerproduct-form-product', compact('categories', 'suppliers'));
+        }
 
         return view('pages.admin.form.adminproduct-form-product', compact('categories', 'suppliers'));
     }
@@ -58,7 +68,10 @@ class ProductController extends Controller
 
         $this->productService->createProduct($validated);
 
-        return redirect()->route('products.index')->with('success', 'Produk berhasil ditambahkan.');
+        $redirectRoute = auth()->user()->role === 'Manager Gudang' ? 'manager.products' : 'products.index';
+
+        return redirect()->route($redirectRoute)->with('success', 'Produk berhasil ditambahkan.');
+        // return redirect()->route('products.index')->with('success', 'Produk berhasil ditambahkan.');
     }
 
     public function show(int $id): View
@@ -67,15 +80,15 @@ class ProductController extends Controller
 
         // Tentukan back route berdasarkan role user
         $backRoute = auth()->user()->role === 'Manager Gudang'
-            ? route('manager.dashboard')
+            ? route('manager.products')
             : route('dashboard');
 
         return view('pages.show', [
             'title'       => 'Detail Produk',
             'subtitle'    => 'SKU: ' . $product->sku,
             'backRoute'   => $backRoute,
-            'editRoute'   => route('products.edit', $product->id),
-            'deleteRoute' => route('products.destroy', $product->id),
+            'editRoute'   => $backRoute ? null : route('products.edit', $product->id),
+            'deleteRoute' => $backRoute ? null : route('products.destroy', $product->id),
             'fields'      => [
                 ['label' => 'Gambar', 'value' => $product->image ? asset('storage/' . $product->image) : null, 'type' => 'image'],
                 ['label' => 'Nama Produk', 'value' => $product->name],
@@ -96,6 +109,10 @@ class ProductController extends Controller
         $product    = $this->productService->getProductById($id);
         $categories = $this->categoryService->getAllCategories();
         $suppliers  = $this->supplierService->getAllSuppliers();
+
+        if (auth()->user()->role === 'Manager Gudang') {
+            return view('pages.manager.form.managerproduct-form-product', compact('product', 'categories', 'suppliers'));
+        }
 
         return view('pages.admin.form.adminproduct-form-product', compact('product', 'categories', 'suppliers'));
     }
@@ -121,7 +138,9 @@ class ProductController extends Controller
 
         $this->productService->updateProduct($id, $validated);
 
-        return redirect()->route('products.index')->with('success', 'Produk berhasil diperbarui.');
+        $redirectRoute = auth()->user()->role === 'Manager Gudang' ? 'manager.products' : 'products.index';
+
+        return redirect()->route($redirectRoute)->with('success', 'Produk berhasil diperbarui.');
     }
 
     public function destroy(int $id): RedirectResponse
@@ -144,7 +163,7 @@ class ProductController extends Controller
 
         $products = $query->orderBy('id')->paginate(25)->withQueryString();
 
-        return view('pages.admin.adminproduct-full', compact('products'));
+        return view('pages.admin.fullview.adminproduct-full', compact('products'));
     }
 
     public function export(): StreamedResponse

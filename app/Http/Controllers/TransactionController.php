@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Product;
 use App\Models\StockTransaction;
 use App\Services\TransactionService;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class TransactionController extends Controller
@@ -17,6 +19,38 @@ class TransactionController extends Controller
     {
         $transactions = $this->transactionService->getAllTransaction();
         return view('pages.admin.admindashboard', compact('transactions'));
+    }
+
+    public function managerCreate(Request $request): View
+    {
+        $products = Product::orderBy('name')->get();
+        $type     = $request->get('type', 'Masuk'); // ?type=Masuk atau ?type=Keluar
+
+        return view('pages.manager.form.managertransaction-form', compact('products', 'type'));
+    }
+
+    public function managerStore(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'product_id' => ['required', 'integer', 'exists:products,id'],
+            'type'       => ['required', 'in:Masuk,Keluar'],
+            'quantity'   => ['required', 'integer', 'min:1'],
+            'date'       => ['required', 'date'],
+            'note'       => ['nullable', 'string', 'max:255'],
+        ]);
+
+        StockTransaction::create([
+            'product_id' => $validated['product_id'],
+            'user_id'    => auth()->id(),
+            'type'       => $validated['type'],
+            'quantity'   => $validated['quantity'],
+            'date'       => $validated['date'],
+            'status'     => 'Pending', // Manager input → pending approval Admin
+            'note'       => $validated['note'] ?? null,
+        ]);
+
+        return redirect()->route('manager.stock')
+            ->with('success', 'Transaksi ' . $validated['type'] . ' berhasil dicatat.');
     }
 
     public function show(int $id): View
@@ -70,6 +104,6 @@ class TransactionController extends Controller
 
         $transactions = $query->orderByDesc('date')->paginate(25)->withQueryString();
 
-        return view('pages.admin.admintransaction-full', compact('transactions'));
+        return view('pages.admin.fullview.admintransaction-full', compact('transactions'));
     }
 }
