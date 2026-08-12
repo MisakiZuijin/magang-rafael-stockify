@@ -8,9 +8,10 @@ $statusClass = $product->stock == 0
 $statusLabel = $product->stock == 0 ? 'Habis' : 'Kritis';
 @endphp
 
-<tr class="hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors text-center">
     <td class="px-4 py-3 font-mono text-gray-500 dark:text-gray-400">#{{ $product->id }}</td>
     <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">{{ $product->name }}</td>
+    <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">{{ $product->sku }}</td>
     <td class="px-4 py-3 text-gray-600 dark:text-gray-400">{{ $product->categori?->name ?? '-' }}</td>
     <td class="px-4 py-3 text-center font-semibold text-red-600 dark:text-red-400">{{ $product->stock }}</td>
     <td class="px-4 py-3 text-center text-gray-500 dark:text-gray-400">{{ $product->minimum_stock }}</td>

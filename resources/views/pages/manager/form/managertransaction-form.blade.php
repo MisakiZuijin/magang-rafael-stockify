@@ -5,12 +5,12 @@
 <x-navbar-dashboard />
 @endsection
 
-@section('sidebar')
+<!-- @section('sidebar')
 <x-sidebar.manager-sidebar />
-@endsection
+@endsection -->
 
 @section('content')
-<div class="lg:pb-10 min-h-screen bg-gray-900 relative z-0">
+<div class="lg:pb-10 min-h-screen dark:bg-gray-900 relative z-0">
     <div class="p-4 sm:p-6 lg:p-8 max-w-2xl mx-auto">
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 dark:bg-gray-800 p-6">
 

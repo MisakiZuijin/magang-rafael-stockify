@@ -4,9 +4,9 @@
 <x-navbar-dashboard />
 @endsection
 
-@section('sidebar')
+<!-- @section('sidebar')
 <x-sidebar.manager-sidebar />
-@endsection
+@endsection -->
 
 @section('content')
 <div class="lg:pb-10 min-h-screen relative z-0">
@@ -19,6 +19,7 @@
             'Gambar',
             ['key' => 'name', 'label' => 'Nama'],
             ['key' => 'category', 'label' => 'Kategori'],
+            ['key' => 'purchase_price', 'label' => 'Harga Beli'],
             ['key' => 'selling_price', 'label' => 'Harga Jual'],
             ['key' => 'stock', 'label' => 'Stok'],
             'Aksi',

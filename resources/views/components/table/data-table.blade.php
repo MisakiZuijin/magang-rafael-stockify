@@ -78,7 +78,7 @@ return ['label' => $h, 'key' => null, 'sortable' => false];
             </div>
 
             {{-- FIX #4: exclude $searchParam (bukan hardcoded 'search') supaya tidak duplicate/conflict antar tabel --}}
-            @foreach(request()->except([$searchParam, 'page']) as $key => $value)
+            @foreach(request()->except([$searchParam, $sortParam, $directionParam, 'page']) as $key => $value)
             @if(is_array($value))
             @foreach($value as $v)
             @if($v !== null)
@@ -99,12 +99,12 @@ return ['label' => $h, 'key' => null, 'sortable' => false];
             <thead class="bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-400 font-medium sticky top-0 z-10">
                 <tr>
                     @foreach($parsedHeaders as $header)
-                    <th scope="col" class="px-4 py-3 whitespace-nowrap select-none">
+                    <th scope="col" class="px-4 py-3 whitespace-nowrap select-none text-center">
                         @if($header['sortable'] && $header['key'])
                         @php
                         $isActive = $sortColumn === $header['key'];
                         $newDirection = ($isActive && $sortDirection === 'asc') ? 'desc' : 'asc';
-                        $sortUrl = request()->fullUrlWithQuery(['sort' => $header['key'], 'direction' => $newDirection]);
+                        $sortUrl = request()->fullUrlWithQuery([$sortParam => $header['key'], $directionParam => $newDirection]);
                         @endphp
                         <a href="{{ $sortUrl }}"
                             class="data-table-sort-link group inline-flex items-center gap-1.5 hover:text-blue-600 dark:hover:text-blue-400 transition-colors {{ $isActive ? 'text-blue-600 dark:text-blue-400' : '' }}">

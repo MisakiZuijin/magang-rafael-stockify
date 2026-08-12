@@ -4,12 +4,12 @@
 <x-navbar-dashboard />
 @endsection
 
-@section('sidebar')
+<!-- @section('sidebar')
 <x-sidebar.admin-sidebar />
-@endsection
+@endsection -->
 
 @section('content')
-<div class="lg: pb-10 min-h-screen bg-gray-900 relative z-0">
+<div class="lg: pb-10 min-h-screen dark:bg-gray-900 relative z-0">
     <div class="p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto">
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 dark:bg-gray-800 p-6">
             <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6">
@@ -82,9 +82,13 @@
                     {{-- Harga Beli --}}
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Harga Beli</label>
-                        <input type="number" name="purchase_price"
-                            value="{{ old('purchase_price', $product->purchase_price ?? '') }}"
-                            class="no-spinner w-full rounded-lg border-gray-300 border px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition dark:bg-gray-700 dark:border-gray-600 dark:text-white ">
+                        <input type="text"
+                            id="display_purchase_price"
+                            value="{{ old('purchase_price', $product->purchase_price ?? '') ? 'Rp ' . number_format(old('purchase_price', $product->purchase_price ?? ''), 0, ',', '.') : '' }}"
+                            class="w-full rounded-lg border-gray-300 border px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                            placeholder="Rp 0"
+                            autocomplete="off">
+                        <input type="hidden" name="purchase_price" id="purchase_price" value="{{ old('purchase_price', $product->purchase_price ?? '') }}">
                         @error('purchase_price')
                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror
@@ -93,9 +97,13 @@
                     {{-- Harga Jual --}}
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Harga Jual</label>
-                        <input type="number" name="selling_price"
-                            value="{{ old('selling_price', $product->selling_price ?? '') }}"
-                            class="no-spinner w-full rounded-lg border-gray-300 border px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        <input type="text"
+                            id="display_selling_price"
+                            value="{{ old('selling_price', $product->selling_price ?? '') ? 'Rp ' . number_format(old('selling_price', $product->selling_price ?? ''), 0, ',', '.') : '' }}"
+                            class="w-full rounded-lg border-gray-300 border px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                            placeholder="Rp 0"
+                            autocomplete="off">
+                        <input type="hidden" name="selling_price" id="selling_price" value="{{ old('selling_price', $product->selling_price ?? '') }}">
                         @error('selling_price')
                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror
@@ -154,6 +162,59 @@
                         </a>
                     </div>
             </form>
+            @push('scripts')
+            <script>
+                function formatRupiah(angka, prefix = 'Rp ') {
+                    let number_string = angka.replace(/[^,\d]/g, '').toString(),
+                        split = number_string.split(','),
+                        sisa = split[0].length % 3,
+                        rupiah = split[0].substr(0, sisa),
+                        ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+                    if (ribuan) {
+                        let separator = sisa ? '.' : '';
+                        rupiah += separator + ribuan.join('.');
+                    }
+
+                    rupiah = split[1] !== undefined ? rupiah + ',' + split[1] : rupiah;
+                    return prefix + rupiah;
+                }
+
+                function setupRupiahInput(displayId, hiddenId) {
+                    const displayInput = document.getElementById(displayId);
+                    const hiddenInput = document.getElementById(hiddenId);
+
+                    if (!displayInput || !hiddenInput) return;
+
+                    displayInput.addEventListener('input', function(e) {
+                        // Hanya ambil digit
+                        let value = this.value.replace(/[^0-9]/g, '');
+
+                        // Update hidden input dengan angka murni
+                        hiddenInput.value = value;
+
+                        // Update tampilan dengan format Rupiah
+                        this.value = value ? formatRupiah(value) : '';
+                    });
+
+                    // Saat blur, pastikan format tetap rapi
+                    displayInput.addEventListener('blur', function() {
+                        let value = this.value.replace(/[^0-9]/g, '');
+                        this.value = value ? formatRupiah(value) : '';
+                    });
+
+                    // Saat focus, hilangkan format biar gampang edit
+                    displayInput.addEventListener('focus', function() {
+                        let value = this.value.replace(/[^0-9]/g, '');
+                        this.value = value;
+                    });
+                }
+
+                // Inisialisasi
+                setupRupiahInput('display_purchase_price', 'purchase_price');
+                setupRupiahInput('display_selling_price', 'selling_price');
+            </script>
+            @endpush
         </div>
     </div>
 </div>

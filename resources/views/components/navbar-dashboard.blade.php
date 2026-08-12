@@ -36,6 +36,19 @@
 
             {{-- Right Side Items --}}
             <div class="flex items-center gap-3">
+                {{-- TOGGLE DARK MODE --}}
+                <button id="theme-toggle" type="button" class="p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-700">
+                    <span class="sr-only">Toggle dark mode</span>
+                    {{-- Icon Sun (Light Mode) --}}
+                    <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path>
+                    </svg>
+                    {{-- Icon Moon (Dark Mode) --}}
+                    <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                    </svg>
+                </button>
+
                 {{-- Nama & Role --}}
                 <div id="user-info" class="hidden sm:grid grid-cols-1 text-right">
                     <p class="text-base font-bold text-gray-900 dark:text-white leading-tight">
@@ -74,6 +87,42 @@
         </div>
     </div>
 </nav>
+
+{{-- Script Toggle Dark Mode --}}
+<script>
+    (function() {
+        const toggleBtn = document.getElementById('theme-toggle');
+        const lightIcon = document.getElementById('theme-toggle-light-icon');
+        const darkIcon = document.getElementById('theme-toggle-dark-icon');
+        const html = document.documentElement;
+
+        // Update icon berdasarkan state saat ini
+        function updateIcon() {
+            if (html.classList.contains('dark')) {
+                lightIcon.classList.remove('hidden');
+                darkIcon.classList.add('hidden');
+            } else {
+                lightIcon.classList.add('hidden');
+                darkIcon.classList.remove('hidden');
+            }
+        }
+
+        // Init icon
+        updateIcon();
+
+        // Toggle click
+        toggleBtn.addEventListener('click', function() {
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+            updateIcon();
+        });
+    })();
+</script>
 
 {{-- Script Dropdown Profile --}}
 <script>

@@ -39,5 +39,5 @@ default => 'bg-red-400 text-red-900',
                 </svg>
             </a>
         </div>
-    </td>.
+    </td>
 </tr>

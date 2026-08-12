@@ -21,7 +21,7 @@ $chartData = [
 ];
 @endphp
 
-<div class="lg:pb-10 min-h-screen bg-gray-900 relative z-0">
+<div class="lg:pb-10 min-h-screen dark:bg-gray-900 relative z-0">
     <div class="p-4 sm:p-6 lg:p-8">
 
         {{-- Header --}}
@@ -69,12 +69,13 @@ $chartData = [
             $productHeaders = [
             ['key' => 'id', 'label' => 'ID'],
             ['key' => 'name', 'label' => 'Nama'],
+            ['key' => 'sku', 'label' => 'SKU'],
             ['key' => 'category', 'label' => 'Kategori'],
             ['key' => 'supplier', 'label' => 'Supplier'],
             ['key' => 'purchase_price', 'label' => 'Harga Beli'],
             ['key' => 'selling_price', 'label' => 'Harga Jual'],
             ['key' => 'stock', 'label' => 'Stok'],
-            ['key' => 'minimum_stocck', 'label' => 'Minimum Stock'],
+            ['key' => 'minimum_stock', 'label' => 'Minimum Stock'],
             ['key' => 'status', 'label' => 'Status'],
             ];
             @endphp
@@ -92,7 +93,7 @@ $chartData = [
                 searchPlaceholder="Cari nama, SKU, atau kategori..."
                 currentSearch="{{ $search }}">
 
-                @forelse($stockReport->sortBy('id') as $product)
+                @forelse($stockReport as $product)
                 <x-table.rows.report-stock-row :product="$product" />
                 @empty
                 <tr>

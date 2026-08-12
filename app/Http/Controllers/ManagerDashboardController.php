@@ -105,7 +105,7 @@ class ManagerDashboardController extends Controller
 
         $products = $query->orderBy('stock', 'asc')->paginate(25)->withQueryString();
 
-        return view('pages.manager.manager-critical-products', compact('products'));
+        return view('pages.manager.fullview.manager-critical-products', compact('products'));
     }
 
     /**

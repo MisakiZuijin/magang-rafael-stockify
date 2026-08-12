@@ -4,9 +4,9 @@
 <x-navbar-dashboard />
 @endsection
 
-@section('sidebar')
+<!-- @section('sidebar')
 <x-sidebar.manager-sidebar />
-@endsection
+@endsection -->
 
 @section('content')
 
@@ -21,7 +21,7 @@ $chartData = [
 ];
 @endphp
 
-<div class="lg:pb-10 min-h-screen bg-gray-900 relative z-0">
+<div class="lg:pb-10 min-h-screen dark:bg-gray-900 relative z-0">
     <div class="p-4 sm:p-6 lg:p-8 gap-6">
 
         {{-- Header --}}

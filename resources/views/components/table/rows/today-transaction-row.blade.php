@@ -11,7 +11,7 @@ default => 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300',
 };
 @endphp
 
-<tr class="hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors text-center">
     <td class="px-4 py-3 font-mono text-gray-500 dark:text-gray-400">#{{ $trx->id }}</td>
     <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">{{ $trx->product?->name ?? 'N/A' }}</td>
     <td class="px-4 py-3 text-gray-600 dark:text-gray-400">{{ $trx->user?->name ?? 'N/A' }}</td>

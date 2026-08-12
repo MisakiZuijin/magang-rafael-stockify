@@ -4,9 +4,9 @@
 <x-navbar-dashboard />
 @endsection
 
-@section('sidebar')
+<!-- @section('sidebar')
 <x-sidebar.manager-sidebar />
-@endsection
+@endsection -->
 
 @section('content')
 <div class="lg:pb-10 min-h-screen relative z-0">

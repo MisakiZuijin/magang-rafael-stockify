@@ -1,9 +1,22 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-gray-100 dark:bg-gray-900">
+<html lang="en" class="h-full bg-gray-100 dark:bg-gray-900 scrollbar-hide">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    {{-- DARK MODE: cek localStorage sebelum render --}}
+    <script>
+        (function() {
+            const theme = localStorage.getItem('theme') || 'light';
+            if (theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        })();
+    </script>
+
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     @vite(['resources/css/app.css','resources/js/app.js'])
     <title>{{ ($settings['app_name'] ?? 'Stockify') . ' - Dashboard' }}</title>

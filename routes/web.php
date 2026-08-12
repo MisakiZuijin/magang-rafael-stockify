@@ -107,8 +107,8 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
     Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
 
-    Route::get('/users', [UserController::class, 'index'])->name('pages.testing');
-    Route::get('/users/{id}', [UserController::class, 'show'])->name('pages.test');
+    Route::get('/users')->name('pages.testing');
+    // Route::get('/users/{id}', [UserController::class, 'show'])->name('pages.test');
 });
 
 // ==========================================
