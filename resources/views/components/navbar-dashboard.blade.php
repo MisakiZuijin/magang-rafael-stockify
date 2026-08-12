@@ -1,9 +1,10 @@
-<nav class="fixed z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+<nav class="fixed top-0 left-0 z-50 w-full h-16 bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
     <div class="px-3 py-3 lg:px-5 lg:pl-3">
         <div class="flex items-center justify-between">
             <div class="flex items-center justify-start">
-                <!-- Toggle Sidebar Mobile -->
-                <button id="toggleSidebarMobile" aria-expanded="true" aria-controls="sidebar" class="p-2 text-gray-600 rounded cursor-pointer lg:hidden hover:text-gray-900 hover:bg-gray-100 focus:bg-gray-100 dark:focus:bg-gray-700 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                {{-- Toggle Sidebar Mobile --}}
+                <button id="toggleSidebarMobile" aria-expanded="false" aria-controls="sidebar"
+                    class="p-2 text-gray-600 rounded cursor-pointer lg:hidden hover:text-gray-900 hover:bg-gray-100 focus:bg-gray-100 dark:focus:bg-gray-700 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
                     <svg id="toggleSidebarMobileHamburger" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
                     </svg>
@@ -12,13 +13,19 @@
                     </svg>
                 </button>
 
-                <!-- Logo & Nama Aplikasi (Dinamis) -->
+                {{-- Logo & Nama Aplikasi --}}
                 <a href="{{ url('/') }}" class="flex ml-2 md:mr-24 items-center gap-2">
-                    @if(!empty($settings['app_logo']) && file_exists(public_path($settings['app_logo'])))
-                    <img src="{{ asset($settings['app_logo']) }}" alt="Logo" class="h-8 w-auto object-contain">
+                    @php
+                    $settings = isset($settings) && is_array($settings) ? $settings : [];
+                    $logoPath = $settings['app_logo'] ?? null;
+                    $logoExists = $logoPath && file_exists(public_path($logoPath));
+                    @endphp
+
+                    @if($logoExists)
+                    <img src="{{ asset($logoPath) }}" alt="Logo" class="h-8 w-auto object-contain">
                     @else
-                    <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 4h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3m0 3h6m-3 5h3m-6 0h.01M12 16h3m-6 0h.01M10 3v4h4V3h-4Z" />
+                    <svg class="w-6 h-6 text-gray-800 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                     </svg>
                     @endif
                     <span class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">
@@ -27,18 +34,10 @@
                 </a>
             </div>
 
-            <!-- Right Side Items -->
+            {{-- Right Side Items --}}
             <div class="flex items-center gap-3">
-                <!-- Search Mobile -->
-                <button id="toggleSidebarMobileSearch" type="button" class="p-2 text-gray-500 rounded-lg lg:hidden hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                    <span class="sr-only">Search</span>
-                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
-                    </svg>
-                </button>
-
-                {{-- Nama & Role — akan hide saat dropdown aktif --}}
-                <div id="user-info" class="hidden sm:grid grid-cols-1 text-right transition-all duration-200 ease-in-out">
+                {{-- Nama & Role --}}
+                <div id="user-info" class="hidden sm:grid grid-cols-1 text-right">
                     <p class="text-base font-bold text-gray-900 dark:text-white leading-tight">
                         {{ auth()->user()->name ?? 'Guest' }}
                     </p>
@@ -47,32 +46,23 @@
                     </p>
                 </div>
 
-                <!-- Profile Dropdown -->
+                {{-- Profile Dropdown --}}
                 <div class="relative">
-                    <button type="button" id="user-menu-button-2" data-dropdown-toggle="dropdown-2" data-dropdown-offset-skidding="0" data-dropdown-placement="bottom-end"
-                        class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600 transition-transform duration-200">
+                    <button type="button" id="user-menu-button" class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600">
                         <span class="sr-only">Open user menu</span>
                         <img class="w-8 h-8 rounded-full" src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name ?? 'User') }}&background=0D8ABC&color=fff" alt="user photo">
                     </button>
 
-                    <!-- Dropdown menu -->
-                    <div id="dropdown-2" class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600 min-w-[12rem]">
+                    <div id="dropdown-user" class="hidden absolute right-0 mt-2 z-50 w-48 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600">
                         <div class="px-4 py-3">
-                            <p class="text-sm text-gray-900 dark:text-white font-semibold">
-                                {{ auth()->user()->name ?? 'Guest' }}
-                            </p>
-                            <p class="text-sm text-gray-500 truncate dark:text-gray-300">
-                                {{ auth()->user()->email ?? '' }}
-                            </p>
-                            <p class="text-xs text-gray-400 mt-0.5 dark:text-gray-400">
-                                {{ auth()->user()->role ?? '' }}
-                            </p>
+                            <p class="text-sm text-gray-900 dark:text-white font-semibold">{{ auth()->user()->name ?? 'Guest' }}</p>
+                            <p class="text-sm text-gray-500 truncate dark:text-gray-300">{{ auth()->user()->email ?? '' }}</p>
                         </div>
                         <ul class="py-1">
                             <li>
                                 <form action="{{ route('logout') }}" method="POST">
                                     @csrf
-                                    <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white transition-colors">
+                                    <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white">
                                         Sign out
                                     </button>
                                 </form>
@@ -85,25 +75,22 @@
     </div>
 </nav>
 
-{{-- Script toggle nama/role --}}
+{{-- Script Dropdown Profile --}}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const info = document.getElementById('user-info');
-        const dropdown = document.getElementById('dropdown-2');
-        if (!info || !dropdown) return;
+        const btn = document.getElementById('user-menu-button');
+        const dropdown = document.getElementById('dropdown-user');
+        if (!btn || !dropdown) return;
 
-        const observer = new MutationObserver(function() {
-            if (dropdown.classList.contains('hidden')) {
-                info.classList.remove('opacity-0', 'scale-95', 'pointer-events-none');
-                info.classList.add('opacity-100', 'scale-100');
-            } else {
-                info.classList.remove('opacity-100', 'scale-100');
-                info.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
-            }
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            dropdown.classList.toggle('hidden');
         });
-        observer.observe(dropdown, {
-            attributes: true,
-            attributeFilter: ['class']
+
+        document.addEventListener('click', function(e) {
+            if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
         });
     });
 </script>

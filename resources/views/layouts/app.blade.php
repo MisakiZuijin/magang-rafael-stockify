@@ -4,23 +4,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="{{ asset('images/settings/favicon.ico') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     @vite(['resources/css/app.css','resources/js/app.js'])
-    <title>Dashboard</title>
+    <title>{{ ($settings['app_name'] ?? 'Stockify') . ' - Dashboard' }}</title>
     @stack('styles')
 </head>
 
 <body class="h-full bg-gray-100 dark:bg-gray-900">
 
+    {{-- NAVBAR: h-16 exact, z-50 paling atas --}}
     @include('layouts.partials.navbar')
 
-    @yield('sidebar', View::make('components.sidebar.admin-sidebar'))
+    {{-- SIDEBAR: top-16 (di bawah navbar), z-40 --}}
+    <aside id="sidebar" class="fixed top-16 left-0 z-40 w-64 h-[calc(100vh-4rem)] transition-transform -translate-x-full lg:translate-x-0 bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700 overflow-y-auto">
+        @hasSection('sidebar')
+        @yield('sidebar')
+        @else
+        @php
+        $userRole = auth()->user()->role ?? 'Admin';
+        $sidebarComponent = match($userRole) {
+        'Manager Gudang' => 'components.sidebar.manager-sidebar',
+        'Staff Gudang' => 'components.sidebar.staff-sidebar',
+        default => 'components.sidebar.admin-sidebar',
+        };
+        @endphp
+        @include($sidebarComponent)
+        @endif
+    </aside>
 
-    <!-- Overlay -->
-    <div class="fixed inset-0 bg-black/50 z-30 hidden lg:hidden" id="sidebar-overlay"></div>
+    {{-- OVERLAY: z-30, di bawah sidebar --}}
+    <div id="sidebar-overlay" class="fixed inset-0 z-30 bg-black/50 hidden lg:hidden" aria-hidden="true"></div>
 
-    <!-- Konten -->
-    <div class="lg:ml-64 pt-16 min-h-screen bg-gray-50 dark:bg-gray-900">
+    {{-- KONTEN: mt-16 exact (tidak tertimbun navbar), ml-0 lg:ml-64 --}}
+    <div class="lg:ml-64 mt-16 min-h-[calc(100vh-4rem)] bg-gray-50 dark:bg-gray-900">
         <main class="p-4 sm:p-6 lg:p-8">
             @yield('content')
         </main>
@@ -28,6 +44,51 @@
     </div>
 
     @stack('scripts')
+
+    {{-- SCRIPT TOGGLE SIDEBAR MOBILE --}}
+    <script>
+        (function() {
+            const toggleBtn = document.getElementById('toggleSidebarMobile');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            const hamburgerIcon = document.getElementById('toggleSidebarMobileHamburger');
+            const closeIcon = document.getElementById('toggleSidebarMobileClose');
+
+            if (!toggleBtn || !sidebar) return;
+
+            function openSidebar() {
+                sidebar.classList.remove('-translate-x-full');
+                if (overlay) overlay.classList.remove('hidden');
+                if (hamburgerIcon) hamburgerIcon.classList.add('hidden');
+                if (closeIcon) closeIcon.classList.remove('hidden');
+                toggleBtn.setAttribute('aria-expanded', 'true');
+            }
+
+            function closeSidebar() {
+                sidebar.classList.add('-translate-x-full');
+                if (overlay) overlay.classList.add('hidden');
+                if (hamburgerIcon) hamburgerIcon.classList.remove('hidden');
+                if (closeIcon) closeIcon.classList.add('hidden');
+                toggleBtn.setAttribute('aria-expanded', 'false');
+            }
+
+            toggleBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const isClosed = sidebar.classList.contains('-translate-x-full');
+                isClosed ? openSidebar() : closeSidebar();
+            });
+
+            if (overlay) {
+                overlay.addEventListener('click', closeSidebar);
+            }
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth >= 1024) {
+                    closeSidebar();
+                }
+            });
+        })();
+    </script>
 
     {{-- SCRIPT AJAX TABEL GLOBAL --}}
     <script>
@@ -63,7 +124,6 @@
         async function loadTable(url, wrapper) {
             wrapper.style.opacity = '0.5';
             wrapper.style.transition = 'opacity 0.2s';
-
             try {
                 const res = await fetch(url, {
                     headers: {
@@ -74,7 +134,6 @@
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
                 const newWrapper = doc.getElementById(wrapper.id);
-
                 if (newWrapper) {
                     wrapper.innerHTML = newWrapper.innerHTML;
                     history.pushState({}, '', url);

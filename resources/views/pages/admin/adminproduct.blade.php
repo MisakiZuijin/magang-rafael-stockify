@@ -4,9 +4,9 @@
 <x-navbar-dashboard />
 @endsection
 
-@section('sidebar')
+<!-- @section('sidebar')
 <x-sidebar.admin-sidebar />
-@endsection
+@endsection -->
 
 @section('content')
 <div class="lg:pb-10 min-h-screen relative z-0">
@@ -16,7 +16,6 @@
         @if(session('success'))
         <x-alert.flash-message type="success" :message="session('success')" />
         @endif
-
         @if(session('error'))
         <x-alert.flash-message type="error" :message="session('error')" />
         @endif
@@ -28,17 +27,37 @@
 
             {{-- TABEL PRODUK --}}
             @php
-            $productHeaders = ['ID', 'Gambar', 'Nama', 'Kategori', 'Harga Jual', 'Stok', 'Aksi'];
+            $productHeaders = [
+            ['key' => 'id', 'label' => 'ID'],
+            'Gambar',
+            ['key' => 'name', 'label' => 'Nama'],
+            ['key' => 'supplier', 'label' => 'Supplier'],
+            ['key' => 'category', 'label' => 'Kategori'],
+            ['key' => 'selling_price', 'label' => 'Harga Jual'],
+            ['key' => 'stock', 'label' => 'Stok'],
+            'Aksi',
+            ];
             @endphp
 
             <x-table.data-table
+                tableId="tabel-admin-produk"
                 :headers="$productHeaders"
                 title="Daftar Produk"
-                maxHeight="max-h-[300px]"
-                colSpan="col-span-12">
+                subtitle="Semua produk yang terdaftar"
+                colSpan="col-span-12"
+                height="h-[400px]"
+                sortColumn="{{ $sortColumn }}"
+                sortDirection="{{ $sortDirection }}"
+                :searchable="true"
+                searchPlaceholder="Cari nama, SKU, atau kategori..."
+                currentSearch="{{ $search }}">
 
                 <x-slot:headerAction>
                     <div class="flex items-center gap-2 flex-wrap justify-end">
+                        <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-3 py-1 rounded-full">
+                            {{ $products->count() }} Produk
+                        </span>
+
                         {{-- Import CSV --}}
                         <form action="{{ route('products.import') }}" method="POST" enctype="multipart/form-data" id="importCsvForm" class="flex items-center">
                             @csrf
@@ -69,26 +88,46 @@
                     </div>
                 </x-slot:headerAction>
 
-                @forelse($products->sortBy('id') as $product)
+                @forelse($products as $product)
                 <x-table.rows.admin-product-row :product="$product" />
                 @empty
                 <tr>
-                    <td colspan="{{ count($productHeaders) }}" class="px-4 py-8 text-center text-gray-400">Belum ada produk.</td>
+                    <td colspan="{{ count($productHeaders) }}" class="px-4 py-8 text-center text-gray-400">
+                        @if($search)
+                        Tidak ada hasil untuk "{{ $search }}".
+                        @else
+                        Belum ada produk.
+                        @endif
+                    </td>
                 </tr>
                 @endforelse
             </x-table.data-table>
 
             {{-- TABEL KATEGORI --}}
             @php
-            $categoryHeaders = ['Nama', 'Produk', 'Aksi'];
+            $categoryHeaders = [
+            ['key' => 'name', 'label' => 'Nama'],
+            ['key' => 'products_count', 'label' => 'Produk'],
+            'Aksi',
+            ];
             @endphp
 
             <x-table.data-table
+                tableId="tabel-admin-kategori"
                 :headers="$categoryHeaders"
                 title="Kategori"
-                maxHeight="max-h-[300px]"
-                colSpan="col-span-12 lg:col-span-5">
+                subtitle="Semua kategori produk"
+                colSpan="col-span-12 lg:col-span-6"
+                height="h-[400px]"
+                sortColumn="{{ $sortColumn }}"
+                sortDirection="{{ $sortDirection }}"
+                :searchable="true"
+                searchPlaceholder="Cari kategori..."
+                currentSearch="{{ $search }}">
                 <x-slot:headerAction>
+                    <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-3 py-1 rounded-full">
+                        {{ $categories->count() }} Kategori
+                    </span>
                     <a href="{{ route('categories.create') }}" class="inline-flex items-center gap-1.5 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -97,26 +136,48 @@
                     </a>
                 </x-slot:headerAction>
 
-                @forelse($categories->sortBy('id') as $category)
+                @forelse($categories as $category)
                 <x-table.rows.category-row :category="$category" />
                 @empty
                 <tr>
-                    <td colspan="{{ count($categoryHeaders) }}" class="px-4 py-8 text-center text-gray-400">Belum ada kategori.</td>
+                    <td colspan="{{ count($categoryHeaders) }}" class="px-4 py-8 text-center text-gray-400">
+                        @if($search)
+                        Tidak ada hasil untuk "{{ $search }}".
+                        @else
+                        Belum ada kategori.
+                        @endif
+                    </td>
                 </tr>
                 @endforelse
             </x-table.data-table>
 
             {{-- TABEL PRODUCT ATTRIBUTES --}}
             @php
-            $attributeHeaders = ['ID', 'Nama Produk', 'Nama Atribut', 'Nilai', 'Aksi'];
+            $attributeHeaders = [
+            ['key' => 'id', 'label' => 'ID'],
+            ['key' => 'product', 'label' => 'Nama Produk'],
+            ['key' => 'name', 'label' => 'Nama Atribut'],
+            ['key' => 'value', 'label' => 'Nilai'],
+            'Aksi',
+            ];
             @endphp
 
             <x-table.data-table
+                tableId="tabel-admin-atribut"
                 :headers="$attributeHeaders"
                 title="Atribut Produk"
-                maxHeight="max-h-[300px]"
-                colSpan="col-span-12 lg:col-span-7">
+                subtitle="Atribut tambahan untuk setiap produk"
+                colSpan="col-span-12 lg:col-span-6"
+                height="h-[400px]"
+                sortColumn="{{ $sortColumn }}"
+                sortDirection="{{ $sortDirection }}"
+                :searchable="true"
+                searchPlaceholder="Cari produk atau atribut..."
+                currentSearch="{{ $search }}">
                 <x-slot:headerAction>
+                    <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-3 py-1 rounded-full">
+                        {{ $productAttributs->count() }} Atribut
+                    </span>
                     <a href="{{ route('product-attributs.create') }}" class="inline-flex items-center gap-1.5 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -125,11 +186,17 @@
                     </a>
                 </x-slot:headerAction>
 
-                @forelse($productAttributs->sortBy('id') as $attribut)
+                @forelse($productAttributs as $attribut)
                 <x-table.rows.product-attribute-row :attribut="$attribut" />
                 @empty
                 <tr>
-                    <td colspan="{{ count($attributeHeaders) }}" class="px-4 py-8 text-center text-gray-400">Belum ada atribut produk.</td>
+                    <td colspan="{{ count($attributeHeaders) }}" class="px-4 py-8 text-center text-gray-400">
+                        @if($search)
+                        Tidak ada hasil untuk "{{ $search }}".
+                        @else
+                        Belum ada atribut produk.
+                        @endif
+                    </td>
                 </tr>
                 @endforelse
             </x-table.data-table>

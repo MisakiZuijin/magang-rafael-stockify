@@ -11,7 +11,10 @@
 'searchable' => false,
 'searchPlaceholder' => 'Cari...',
 'currentSearch' => '',
-'tableId' => 'table-' . uniqid(), // ← TAMBAH INI
+'tableId' => 'table-' . uniqid(),
+'searchParam' => 'search',
+'sortParam' => 'sort',
+'directionParam' => 'direction',
 ])
 
 @php
@@ -27,7 +30,6 @@ return ['label' => $h, 'key' => null, 'sortable' => false];
 })->toArray();
 @endphp
 
-{{-- WRAPPER DENGAN ID & CLASS AJAX --}}
 <div id="{{ $tableId }}" class="data-table-wrapper {{ $colSpan }} bg-white rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 dark:bg-gray-800 p-5 grid grid-cols-1">
 
     @if($title || $showViewAll || isset($headerAction) || $subtitle || $viewAllRoute || $searchable)
@@ -52,7 +54,6 @@ return ['label' => $h, 'key' => null, 'sortable' => false];
         </div>
 
         @if($searchable)
-        {{-- TAMBAH CLASS data-table-search-form --}}
         <form action="{{ request()->url() }}" method="GET" class="data-table-search-form w-full sm:max-w-sm">
             <div class="relative">
                 <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -60,12 +61,14 @@ return ['label' => $h, 'key' => null, 'sortable' => false];
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                 </div>
-                <input type="text" name="search" value="{{ $currentSearch }}"
+                {{-- FIX #2: pakai $searchParam langsung, bukan fallback ke 'search' --}}
+                <input type="text" name="{{ $searchParam }}" value="{{ $currentSearch }}"
                     class="block w-full p-2.5 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
                     placeholder="{{ $searchPlaceholder }}">
 
                 @if($currentSearch)
-                <a href="{{ request()->fullUrlWithQuery(['search' => null]) }}"
+                {{-- FIX #3: tombol X hapus parameter yang sesuai ($searchParam), bukan hardcoded 'search' --}}
+                <a href="{{ request()->fullUrlWithQuery([$searchParam => null]) }}"
                     class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-red-500 transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -74,7 +77,8 @@ return ['label' => $h, 'key' => null, 'sortable' => false];
                 @endif
             </div>
 
-            @foreach(request()->except(['search', 'page']) as $key => $value)
+            {{-- FIX #4: exclude $searchParam (bukan hardcoded 'search') supaya tidak duplicate/conflict antar tabel --}}
+            @foreach(request()->except([$searchParam, 'page']) as $key => $value)
             @if(is_array($value))
             @foreach($value as $v)
             @if($v !== null)
@@ -102,7 +106,6 @@ return ['label' => $h, 'key' => null, 'sortable' => false];
                         $newDirection = ($isActive && $sortDirection === 'asc') ? 'desc' : 'asc';
                         $sortUrl = request()->fullUrlWithQuery(['sort' => $header['key'], 'direction' => $newDirection]);
                         @endphp
-                        {{-- TAMBAH CLASS data-table-sort-link --}}
                         <a href="{{ $sortUrl }}"
                             class="data-table-sort-link group inline-flex items-center gap-1.5 hover:text-blue-600 dark:hover:text-blue-400 transition-colors {{ $isActive ? 'text-blue-600 dark:text-blue-400' : '' }}">
                             <span>{{ $header['label'] }}</span>

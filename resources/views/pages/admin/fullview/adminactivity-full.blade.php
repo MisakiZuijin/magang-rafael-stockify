@@ -5,9 +5,9 @@
 <x-navbar-dashboard />
 @endsection
 
-@section('sidebar')
+<!-- @section('sidebar')
 <x-sidebar.admin-sidebar />
-@endsection
+@endsection -->
 
 @section('content')
 <x-admin.full-list

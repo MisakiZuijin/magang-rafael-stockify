@@ -4,9 +4,9 @@
 <x-navbar-dashboard />
 @endsection
 
-@section('sidebar')
+<!-- @section('sidebar')
 <x-sidebar.admin-sidebar />
-@endsection
+@endsection -->
 
 @section('content')
 <div class="lg:pb-10 min-h-screen relative z-0">
@@ -16,7 +16,6 @@
         @if(session('success'))
         <x-alert.flash-message type="success" :message="session('success')" />
         @endif
-
         @if(session('error'))
         <x-alert.flash-message type="error" :message="session('error')" />
         @endif
@@ -28,15 +27,33 @@
 
             {{-- TABEL SUPPLIER --}}
             @php
-            $supplierHeaders = ['ID', 'Nama', 'Email', 'Telepon', 'Alamat', 'Produk', 'Aksi'];
+            $supplierHeaders = [
+            ['key' => 'id', 'label' => 'ID'],
+            ['key' => 'name', 'label' => 'Nama'],
+            ['key' => 'email', 'label' => 'Email'],
+            ['key' => 'phone', 'label' => 'Telepon'],
+            ['key' => 'address', 'label' => 'Alamat'],
+            ['key' => 'products_count', 'label' => 'Produk'],
+            'Aksi',
+            ];
             @endphp
 
             <x-table.data-table
+                tableId="tabel-admin-supplier"
                 :headers="$supplierHeaders"
                 title="Daftar Supplier"
-                maxHeight="max-h-[400px]"
-                colSpan="col-span-12">
+                subtitle="Semua supplier yang terdaftar"
+                colSpan="col-span-12"
+                height="h-[400px]"
+                sortColumn="{{ $sortColumn }}"
+                sortDirection="{{ $sortDirection }}"
+                :searchable="true"
+                searchPlaceholder="Cari nama, email, telepon, atau alamat..."
+                currentSearch="{{ $search }}">
                 <x-slot:headerAction>
+                    <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-3 py-1 rounded-full">
+                        {{ $suppliers->count() }} Supplier
+                    </span>
                     <a href="{{ route('suppliers.create') }}" class="inline-flex items-center gap-1.5 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -45,11 +62,17 @@
                     </a>
                 </x-slot:headerAction>
 
-                @forelse($suppliers->sortBy('id') as $supplier)
+                @forelse($suppliers as $supplier)
                 <x-table.rows.supplier-row :supplier="$supplier" />
                 @empty
                 <tr>
-                    <td colspan="{{ count($supplierHeaders) }}" class="px-4 py-8 text-center text-gray-400">Belum ada supplier.</td>
+                    <td colspan="{{ count($supplierHeaders) }}" class="px-4 py-8 text-center text-gray-400">
+                        @if($search)
+                        Tidak ada hasil untuk "{{ $search }}".
+                        @else
+                        Belum ada supplier.
+                        @endif
+                    </td>
                 </tr>
                 @endforelse
             </x-table.data-table>

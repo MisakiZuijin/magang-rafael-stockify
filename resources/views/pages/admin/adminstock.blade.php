@@ -4,9 +4,9 @@
 <x-navbar-dashboard />
 @endsection
 
-@section('sidebar')
+<!-- @section('sidebar')
 <x-sidebar.admin-sidebar />
-@endsection
+@endsection -->
 
 @section('content')
 <div class="lg:pb-10 min-h-screen relative z-0">
@@ -53,16 +53,47 @@
         </div>
 
         {{-- Riwayat Transaksi --}}
-        <x-table.stock-history-table
-            :viewAllRoute="route('transactions.full')">
+        @php
+        $historyHeaders = [
+        ['key' => 'date', 'label' => 'Tanggal'],
+        ['key' => 'product', 'label' => 'Produk'],
+        ['key' => 'user', 'label' => 'User'],
+        ['key' => 'type', 'label' => 'Tipe'],
+        ['key' => 'quantity', 'label' => 'Qty'],
+        ['key' => 'status', 'label' => 'Status'],
+        ['key' => 'note', 'label' => 'Keterangan'],
+        ];
+        @endphp
+
+        <x-table.data-table
+            tableId="tabel-riwayat-transaksi"
+            :headers="$historyHeaders"
+            title="Riwayat Transaksi"
+            subtitle="Semua aktivitas barang masuk dan keluar"
+            colSpan="col-span-12"
+            height="h-[350px]"
+            sortColumn="{{ $sortColumn }}"
+            sortDirection="{{ $sortDirection }}"
+            :searchable="true"
+            searchPlaceholder="Cari transaksi..."
+            currentSearch="{{ $search }}"
+            viewAllRoute="{{ route('transactions.full') }}"
+            showViewAll>
+
             @forelse($transactions->sortByDesc('date') as $trx)
             <x-table.rows.stock-history-row :trx="$trx" />
             @empty
             <tr>
-                <td colspan="7" class="px-6 py-4 text-center">Belum ada transaksi</td>
+                <td colspan="{{ count($historyHeaders) }}" class="px-4 py-8 text-center text-gray-400">
+                    @if($search)
+                    Tidak ada hasil untuk "{{ $search }}".
+                    @else
+                    Belum ada transaksi.
+                    @endif
+                </td>
             </tr>
             @endforelse
-        </x-table.stock-history-table>
+        </x-table.data-table>
 
         {{-- Grid: Stock Opname & Minimum Stock --}}
         <div class="grid grid-cols-12 gap-6">
@@ -77,23 +108,47 @@
             {{-- Pengaturan Stock Minimum --}}
             <div class="col-span-12 lg:col-span-7">
                 @php
-                $minStockHeaders = ['Produk', 'Stock', 'Minimum'];
+                $minStockHeaders = [
+                ['key' => 'product_name', 'label' => 'Produk'],
+                ['key' => 'stock', 'label' => 'Stock'],
+                ['key' => 'minimum_stock', 'label' => 'Minimum'],
+                ];
                 @endphp
 
                 <x-table.data-table
+                    tableId="tabel-minimum-stock"
                     :headers="$minStockHeaders"
                     title="Pengaturan Stock Minimum"
-                    maxHeight="max-h-[300px]"
-                    colSpan="col-span-12">
-                    @foreach($products->sortBy('id') as $product)
+                    subtitle="Atur batas minimum setiap produk"
+                    colSpan="col-span-12"
+                    height="h-[260px]"
+                    sortColumn="{{ $sortColumn }}"
+                    sortDirection="{{ $sortDirection }}"
+                    :searchable="true"
+                    searchPlaceholder="Cari produk..."
+                    searchParam="search_min"
+                    currentSearch="{{ $searchMin }}">
+
+                    @forelse($productsSorted as $product)
                     <x-table.rows.minimum-stock-row :product="$product" />
-                    @endforeach
+                    @empty
+                    <tr>
+                        <td colspan="{{ count($minStockHeaders) }}" class="px-4 py-8 text-center text-gray-400">
+                            @if($searchMin)
+                            Tidak ada hasil untuk "{{ $searchMin }}".
+                            @else
+                            Tidak ada produk.
+                            @endif
+                        </td>
+                    </tr>
+                    @endforelse
                 </x-table.data-table>
             </div>
-
         </div>
 
     </div>
+
+</div>
 </div>
 @endsection
 

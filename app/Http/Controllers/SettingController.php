@@ -28,10 +28,9 @@ class SettingController extends Controller
             'company_phone'   => ['nullable', 'string', 'max:50'],
             'company_email'   => ['nullable', 'email', 'max:255'],
             'app_logo'        => ['nullable', 'image', 'mimes:png,jpg,jpeg,svg', 'max:2048'],
-            'favicon'         => ['nullable', 'image', 'mimes:png,ico', 'max:1024'],
+            // favicon dihapus dari validasi
         ]);
 
-        // Handle text fields
         $data = [
             'app_name'        => $validated['app_name'],
             'company_name'    => $validated['company_name'] ?? '',
@@ -40,13 +39,8 @@ class SettingController extends Controller
             'company_email'   => $validated['company_email'] ?? '',
         ];
 
-        // Handle uploads
         if ($request->hasFile('app_logo')) {
             $data['app_logo'] = $this->settingService->uploadLogo($request->file('app_logo'), 'app_logo');
-        }
-
-        if ($request->hasFile('favicon')) {
-            $data['favicon'] = $this->settingService->uploadLogo($request->file('favicon'), 'favicon');
         }
 
         $this->settingService->set($data);

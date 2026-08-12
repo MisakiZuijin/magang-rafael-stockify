@@ -10,7 +10,6 @@ use App\Services\ProductService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Carbon\Carbon;
 
 class StockController extends Controller
 {
@@ -19,20 +18,71 @@ class StockController extends Controller
         protected ProductService $productService
     ) {}
 
-    public function index(): View
+    public function index(Request $request): View
     {
+        $sortColumn    = $request->input('sort', 'id');
+        $sortDirection = $request->input('direction', 'asc');
+        $search        = $request->input('search', '');
+        $searchMin     = $request->input('search_min', '');
+
         $transactions = $this->stockService->getAllTransactions();
-        $products = $this->productService->getAllProducts();
+        $products     = $this->productService->getAllProducts();
         $recentActivities = $this->stockService->getRecentActivities(5);
         $lowStockProducts = $this->stockService->getLowStockProducts();
 
-        // Tidak perlu attach manual lagi — $product->minimum_stock langsung dari DB
+        $desc = $sortDirection === 'desc';
+
+        // 1. SEARCH & SORT TRANSAKSI (tabel riwayat)
+        if ($search) {
+            $s = strtolower($search);
+            $transactions = $transactions->filter(function ($t) use ($s) {
+                return str_contains(strtolower($t->product?->name ?? ''), $s)
+                    || str_contains(strtolower($t->user?->name ?? ''), $s)
+                    || str_contains(strtolower($t->status ?? ''), $s)
+                    || str_contains(strtolower($t->type ?? ''), $s)
+                    || str_contains(strtolower((string) $t->id), $s);
+            })->values();
+        }
+
+        $transactions = match ($sortColumn) {
+            'date'     => $transactions->sortBy('date', SORT_REGULAR, $desc),
+            'product'  => $transactions->sortBy(fn($t) => $t->product?->name ?? '', SORT_REGULAR, $desc),
+            'user'     => $transactions->sortBy(fn($t) => $t->user?->name ?? '', SORT_REGULAR, $desc),
+            'type'     => $transactions->sortBy('type', SORT_REGULAR, $desc),
+            'quantity' => $transactions->sortBy('quantity', SORT_REGULAR, $desc),
+            'status'   => $transactions->sortBy('status', SORT_REGULAR, $desc),
+            default    => $transactions->sortBy('id', SORT_REGULAR, $desc),
+        };
+
+        $productsSorted = $products;
+
+        if ($searchMin) {
+            $sm = strtolower($searchMin);
+            $productsSorted = $productsSorted->filter(function ($p) use ($sm) {
+                return str_contains(strtolower($p->name), $sm)
+                    || str_contains(strtolower($p->sku ?? ''), $sm)
+                    || str_contains(strtolower((string) $p->id), $sm);
+            })->values();
+        }
+
+        // 2. SORT PRODUK (tabel minimum stock)
+        $productsSorted = match ($sortColumn) {
+            'product_name'  => $productsSorted->sortBy('name', SORT_REGULAR, $desc),
+            'stock'         => $productsSorted->sortBy('stock', SORT_REGULAR, $desc),
+            'minimum_stock' => $productsSorted->sortBy('minimum_stock', SORT_REGULAR, $desc),
+            default         => $productsSorted->sortBy('id', SORT_REGULAR, $desc),
+        };
 
         return view('pages.admin.adminstock', compact(
             'transactions',
             'products',
+            'productsSorted',
             'recentActivities',
-            'lowStockProducts'
+            'lowStockProducts',
+            'sortColumn',
+            'sortDirection',
+            'search',
+            'searchMin'
         ));
     }
 

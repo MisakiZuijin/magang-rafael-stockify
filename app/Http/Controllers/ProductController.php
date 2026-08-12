@@ -21,12 +21,80 @@ class ProductController extends Controller
         protected ProductAttributService $productAttributService
     ) {}
 
-    public function index(): View
+    public function index(Request $request): View
     {
-        $products = $this->productService->getAllProducts();
-        $categories = $this->categoryService->getAllCategories();
+        $sortColumn    = $request->input('sort', 'id');
+        $sortDirection = $request->input('direction', 'asc');
+        $search        = $request->input('search', '');
+
+        $products         = $this->productService->getAllProducts();
+        $categories       = $this->categoryService->getAllCategories();
         $productAttributs = $this->productAttributService->getAll();
-        return view('pages.admin.adminproduct', compact('products', 'categories', 'productAttributs'));
+
+        $desc = $sortDirection === 'desc';
+
+        // === SEARCH & SORT PRODUK ===
+        if ($search) {
+            $s = strtolower($search);
+            $products = $products->filter(function ($p) use ($s) {
+                return str_contains(strtolower($p->name), $s)
+                    || str_contains(strtolower($p->sku ?? ''), $s)
+                    || str_contains(strtolower($p->categori?->name ?? ''), $s)
+                    || str_contains(strtolower($p->supplier?->name ?? ''), $s);
+            })->values();
+        }
+
+        $products = match ($sortColumn) {
+            'name'           => $products->sortBy('name', SORT_REGULAR, $desc),
+            'supplier'       => $products->sortBy(fn($p) => $p->supplier?->name ?? '', SORT_REGULAR, $desc),
+            'category'       => $products->sortBy(fn($p) => $p->categori?->name ?? '', SORT_REGULAR, $desc),
+            'purchase_price'  => $products->sortBy('purchase_price', SORT_REGULAR, $desc),
+            'selling_price'  => $products->sortBy('selling_price', SORT_REGULAR, $desc),
+            'stock'          => $products->sortBy('stock', SORT_REGULAR, $desc),
+            'minimum_stock'          => $products->sortBy('minimum_stock', SORT_REGULAR, $desc),
+            default          => $products->sortBy('id', SORT_REGULAR, $desc),
+        };
+
+        // === SEARCH & SORT KATEGORI ===
+        if ($search) {
+            $s = strtolower($search);
+            $categories = $categories->filter(function ($c) use ($s) {
+                return str_contains(strtolower($c->name), $s)
+                    || str_contains(strtolower((string) $c->id), $s);
+            })->values();
+        }
+
+        $categories = match ($sortColumn) {
+            'name'           => $categories->sortBy('name', SORT_REGULAR, $desc),
+            'products_count' => $categories->sortBy(fn($c) => $c->products?->count() ?? 0, SORT_REGULAR, $desc),
+            default          => $categories->sortBy('id', SORT_REGULAR, $desc),
+        };
+
+        // === SEARCH & SORT ATRIBUT ===
+        if ($search) {
+            $s = strtolower($search);
+            $productAttributs = $productAttributs->filter(function ($a) use ($s) {
+                return str_contains(strtolower($a->name ?? ''), $s)
+                    || str_contains(strtolower($a->value ?? ''), $s)
+                    || str_contains(strtolower($a->product?->name ?? ''), $s);
+            })->values();
+        }
+
+        $productAttributs = match ($sortColumn) {
+            'product' => $productAttributs->sortBy(fn($a) => $a->product?->name ?? '', SORT_REGULAR, $desc),
+            'name'    => $productAttributs->sortBy('name', SORT_REGULAR, $desc),
+            'value'   => $productAttributs->sortBy('value', SORT_REGULAR, $desc),
+            default   => $productAttributs->sortBy('id', SORT_REGULAR, $desc),
+        };
+
+        return view('pages.admin.adminproduct', compact(
+            'products',
+            'categories',
+            'productAttributs',
+            'sortColumn',
+            'sortDirection',
+            'search'
+        ));
     }
 
     public function managerIndex(Request $request): View

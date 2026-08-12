@@ -29,11 +29,17 @@ class ReportController extends Controller
             'stock_status' => $request->input('stock_status'),
         ];
 
+        // === STOK: sort & search (tetap pakai parameter default) ===
         $sortColumn    = $request->input('sort', 'id');
         $sortDirection = $request->input('direction', 'asc');
         $search        = $request->input('search', '');
 
-        // === DATA STOK: Search + Sort ===
+        // === TRANSAKSI: sort & search dengan parameter terpisah ===
+        $sortTrxColumn    = $request->input('sort_trx', 'id');
+        $sortTrxDirection = $request->input('direction_trx', 'asc');
+        $searchTrx        = $request->input('search_trx', '');
+
+        // === DATA STOK ===
         $stockReport = $this->reportService->getStockReport(
             $filters['stock_status'],
             $filters['category_id']
@@ -42,7 +48,7 @@ class ReportController extends Controller
         $stockReport = $this->applySearch($stockReport, $search, 'stock');
         $stockReport = $this->applySort($stockReport, $sortColumn, $sortDirection, 'stock');
 
-        // === DATA TRANSAKSI: Search + Sort ===
+        // === DATA TRANSAKSI ===
         $transactionReport = $this->reportService->getTransactionReport(
             $filters['start_date'],
             $filters['end_date'],
@@ -51,8 +57,8 @@ class ReportController extends Controller
             $filters['user_id']
         );
 
-        $transactionReport = $this->applySearch($transactionReport, $search, 'transaction');
-        $transactionReport = $this->applySort($transactionReport, $sortColumn, $sortDirection, 'transaction');
+        $transactionReport = $this->applySearch($transactionReport, $searchTrx, 'transaction');
+        $transactionReport = $this->applySort($transactionReport, $sortTrxColumn, $sortTrxDirection, 'transaction');
 
         // Data lainnya
         $userActivityReport = $this->reportService->getUserActivityReport(
@@ -94,7 +100,11 @@ class ReportController extends Controller
             'filters',
             'sortColumn',
             'sortDirection',
-            'search'
+            'search',
+            // ← TAMBAH: variabel terpisah untuk tabel transaksi
+            'sortTrxColumn',
+            'sortTrxDirection',
+            'searchTrx'
         ));
     }
 
@@ -111,11 +121,17 @@ class ReportController extends Controller
             'stock_status' => $request->input('stock_status'),
         ];
 
+        // === STOK ===
         $sortColumn    = $request->input('sort', 'id');
         $sortDirection = $request->input('direction', 'asc');
         $search        = $request->input('search', '');
 
-        // === DATA STOK: Search + Sort ===
+        // === TRANSAKSI (terpisah) ===
+        $sortTrxColumn    = $request->input('sort_trx', 'id');
+        $sortTrxDirection = $request->input('direction_trx', 'asc');
+        $searchTrx        = $request->input('search_trx', '');
+
+        // === DATA STOK ===
         $stockReport = $this->reportService->getStockReport(
             $filters['stock_status'],
             $filters['category_id']
@@ -124,7 +140,7 @@ class ReportController extends Controller
         $stockReport = $this->applySearch($stockReport, $search, 'stock');
         $stockReport = $this->applySort($stockReport, $sortColumn, $sortDirection, 'stock');
 
-        // === DATA TRANSAKSI: Search + Sort ===
+        // === DATA TRANSAKSI ===
         $transactionReport = $this->reportService->getTransactionReport(
             $filters['start_date'],
             $filters['end_date'],
@@ -133,8 +149,8 @@ class ReportController extends Controller
             null
         );
 
-        $transactionReport = $this->applySearch($transactionReport, $search, 'transaction');
-        $transactionReport = $this->applySort($transactionReport, $sortColumn, $sortDirection, 'transaction');
+        $transactionReport = $this->applySearch($transactionReport, $searchTrx, 'transaction');
+        $transactionReport = $this->applySort($transactionReport, $sortTrxColumn, $sortTrxDirection, 'transaction');
 
         $stockSummary = $this->reportService->getStockSummary();
         $transactionSummary = $this->reportService->getTransactionSummary(
@@ -168,7 +184,11 @@ class ReportController extends Controller
             'filters',
             'sortColumn',
             'sortDirection',
-            'search'
+            'search',
+            // ← TAMBAH
+            'sortTrxColumn',
+            'sortTrxDirection',
+            'searchTrx'
         ));
     }
 
@@ -225,7 +245,8 @@ class ReportController extends Controller
         return match ($column) {
             'product' => $collection->sortBy(fn($t) => $t->product?->name ?? '', SORT_REGULAR, $desc),
             'user'    => $collection->sortBy(fn($t) => $t->user?->name ?? '', SORT_REGULAR, $desc),
-            'date', 'quantity', 'status', 'type', 'id'
+            // ← FIX: tambahkan 'note' agar kolom Catatan bisa disort
+            'date', 'quantity', 'status', 'type', 'note', 'id'
             => $collection->sortBy($column, SORT_REGULAR, $desc),
             default => $collection->sortBy('id', SORT_REGULAR, $desc),
         };

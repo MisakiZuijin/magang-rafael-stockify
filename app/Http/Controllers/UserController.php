@@ -13,10 +13,44 @@ class UserController extends Controller
         protected UserService $userService
     ) {}
 
-    public function index(): View
+    public function index(Request $request): View
     {
+        $sortColumn    = $request->input('sort', 'id');
+        $sortDirection = $request->input('direction', 'asc');
+        $search        = $request->input('search', '');
+
         $users = $this->userService->getAllUsers();
-        return view('pages.admin.adminpengguna', compact('users'));
+
+        $desc = $sortDirection === 'desc';
+
+        // Search
+        if ($search) {
+            $s = strtolower($search);
+            $users = $users->filter(function ($sup) use ($s) {
+                return str_contains(strtolower($sup->name), $s)
+                    || str_contains(strtolower($sup->email ?? ''), $s)
+                    || str_contains(strtolower($sup->role ?? ''), $s)
+                    || str_contains(strtolower((string) $sup->id), $s);
+            })->values();
+        }
+
+        // Sort
+        $users = match ($sortColumn) {
+            'name'           => $users->sortBy('name', SORT_REGULAR, $desc),
+            'email'          => $users->sortBy('email', SORT_REGULAR, $desc),
+            'role'          => $users->sortBy('role', SORT_REGULAR, $desc),
+            default          => $users->sortBy('id', SORT_REGULAR, $desc),
+        };
+
+        return view('pages.admin.adminpengguna', compact(
+            'users',
+            'sortColumn',
+            'sortDirection',
+            'search'
+        ));
+
+        // $users = $this->userService->getAllUsers();
+        // return view('pages.admin.adminpengguna', compact('users'));
     }
 
     public function create(): View

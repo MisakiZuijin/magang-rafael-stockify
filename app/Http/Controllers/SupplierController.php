@@ -13,10 +13,44 @@ class SupplierController extends Controller
         protected SupplierService $supplierService
     ) {}
 
-    public function index(): View
+    public function index(Request $request): View
     {
+        $sortColumn    = $request->input('sort', 'id');
+        $sortDirection = $request->input('direction', 'asc');
+        $search        = $request->input('search', '');
+
         $suppliers = $this->supplierService->getAllSuppliers();
-        return view('pages.admin.adminsupplier', compact('suppliers'));
+
+        $desc = $sortDirection === 'desc';
+
+        // Search
+        if ($search) {
+            $s = strtolower($search);
+            $suppliers = $suppliers->filter(function ($sup) use ($s) {
+                return str_contains(strtolower($sup->name), $s)
+                    || str_contains(strtolower($sup->email ?? ''), $s)
+                    || str_contains(strtolower($sup->phone ?? ''), $s)
+                    || str_contains(strtolower($sup->address ?? ''), $s)
+                    || str_contains(strtolower((string) $sup->id), $s);
+            })->values();
+        }
+
+        // Sort
+        $suppliers = match ($sortColumn) {
+            'name'           => $suppliers->sortBy('name', SORT_REGULAR, $desc),
+            'email'          => $suppliers->sortBy('email', SORT_REGULAR, $desc),
+            'phone'          => $suppliers->sortBy('phone', SORT_REGULAR, $desc),
+            'address'        => $suppliers->sortBy('address', SORT_REGULAR, $desc),
+            'products_count' => $suppliers->sortBy(fn($s) => $s->products?->count() ?? 0, SORT_REGULAR, $desc),
+            default          => $suppliers->sortBy('id', SORT_REGULAR, $desc),
+        };
+
+        return view('pages.admin.adminsupplier', compact(
+            'suppliers',
+            'sortColumn',
+            'sortDirection',
+            'search'
+        ));
     }
 
     public function manager(Request $request): View
