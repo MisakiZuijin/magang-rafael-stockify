@@ -4,15 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Services\ReportService;
 use App\Services\CategoriService;
+use App\Services\TransactionService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Collection;
+use Carbon\Carbon;
 
 class ReportController extends Controller
 {
     public function __construct(
         protected ReportService $reportService,
-        protected CategoriService $categoryService
+        protected CategoriService $categoryService,
+        protected TransactionService $transactionService
     ) {}
 
     /**
@@ -39,11 +42,34 @@ class ReportController extends Controller
         $sortTrxDirection = $request->input('direction_trx', 'asc');
         $searchTrx        = $request->input('search_trx', '');
 
+        $transactions     = $this->transactionService->getAllTransaction();
+
+        // === TRANSAKSI HARI INI ===
+        $today = now()->toDateString();
+
+        $todayIncoming = $transactions->filter(function ($trx) use ($today) {
+            return ($trx->type ?? '') === 'Masuk'
+                && !empty($trx->date)
+                && Carbon::parse($trx->date)->toDateString() === $today;
+        })->values();
+
+        $todayOutgoing = $transactions->filter(function ($trx) use ($today) {
+            return ($trx->type ?? '') === 'Keluar'
+                && !empty($trx->date)
+                && Carbon::parse($trx->date)->toDateString() === $today;
+        })->values();
+
         // === DATA STOK ===
         $stockReport = $this->reportService->getStockReport(
             $filters['stock_status'],
             $filters['category_id']
         );
+
+        $stockChart = [
+            'labels'  => $stockReport->pluck('categori.name')->unique()->values(),
+            'stock'   => $stockReport->groupBy('categori.name')->map->sum('stock')->values(),
+            'minimum' => $stockReport->groupBy('categori.name')->map->sum('minimum_stock')->values(),
+        ];
 
         $stockReport = $this->applySearch($stockReport, $search, 'stock');
         $stockReport = $this->applySort($stockReport, $sortColumn, $sortDirection, 'stock');
@@ -73,11 +99,6 @@ class ReportController extends Controller
             $filters['end_date']
         );
 
-        $stockChart = $this->reportService->getStockChartData(
-            $filters['stock_status'],
-            $filters['category_id']
-        );
-
         $transactionChart = $this->reportService->getTransactionChartData(
             $filters['start_date'],
             $filters['end_date'],
@@ -98,6 +119,8 @@ class ReportController extends Controller
             'transactionChart',
             'categories',
             'filters',
+            'todayIncoming',
+            'todayOutgoing',
             'sortColumn',
             'sortDirection',
             'search',
@@ -137,6 +160,12 @@ class ReportController extends Controller
             $filters['category_id']
         );
 
+        $stockChart = [
+            'labels'  => $stockReport->pluck('categori.name')->unique()->values(),
+            'stock'   => $stockReport->groupBy('categori.name')->map->sum('stock')->values(),
+            'minimum' => $stockReport->groupBy('categori.name')->map->sum('minimum_stock')->values(),
+        ];
+
         $stockReport = $this->applySearch($stockReport, $search, 'stock');
         $stockReport = $this->applySort($stockReport, $sortColumn, $sortDirection, 'stock');
 
@@ -156,11 +185,6 @@ class ReportController extends Controller
         $transactionSummary = $this->reportService->getTransactionSummary(
             $filters['start_date'],
             $filters['end_date']
-        );
-
-        $stockChart = $this->reportService->getStockChartData(
-            $filters['stock_status'],
-            $filters['category_id']
         );
 
         $transactionChart = $this->reportService->getTransactionChartData(

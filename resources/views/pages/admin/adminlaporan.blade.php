@@ -57,6 +57,20 @@ $chartData = [
             </x-card.cards>
         </div>
 
+        <div class="grid col-span-12 grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <x-card.cards label="Masuk Hari Ini" :value="$todayIncoming->sum('quantity')" color="green" colSpan="col-span-1">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </svg>
+            </x-card.cards>
+
+            <x-card.cards label="Keluar Hari Ini" :value="$todayOutgoing->sum('quantity')" color="red" colSpan="col-span-1">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                </svg>
+            </x-card.cards>
+        </div>
+
         {{-- CHARTS ROW --}}
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
             <x-charts.report-chart title="Stok per Kategori" canvasId="stockCategoryChart" />
@@ -146,7 +160,7 @@ $chartData = [
                     </div>
                 </x-slot>
 
-                @forelse($transactionReport as $trx)
+                @forelse($transactionReport->sortByDesc('id') as $trx)
                 <x-table.rows.report-transaction-row :trx="$trx" />
                 @empty
                 <tr>

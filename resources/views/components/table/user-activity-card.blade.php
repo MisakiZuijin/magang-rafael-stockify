@@ -28,16 +28,17 @@ default => 'bg-red-400 text-red-900',
     </div>
     <div class="overflow-x-auto max-h-[300px] scrollbar-hide">
         <table class="w-full text-sm text-left">
-            <thead class="bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-xs uppercase sticky top-0">
+            <thead class="bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-xs uppercase sticky top-0 text-center">
                 <tr>
                     <th class="px-4 py-2">Tanggal</th>
                     <th class="px-4 py-2">Produk</th>
                     <th class="px-4 py-2 text-center">Tipe</th>
                     <th class="px-4 py-2 text-center">Qty</th>
                     <th class="px-4 py-2">Status</th>
+                    <th class="px-4 py-2">Note</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+            <tbody class="divide-y divide-gray-100 dark:divide-gray-700 text-center">
                 @foreach($user->stockTransactions as $activity)
                 @php [$actClass, $actLabel] = $typeBadge($activity->type); @endphp
                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
@@ -52,6 +53,8 @@ default => 'bg-red-400 text-red-900',
                     <td class="px-4 py-2">
                         <span class="px-2 py-0.5 rounded-full text-xs font-medium {{ $statusBadge($activity->status) }}">{{ $activity->status }}</span>
                     </td>
+                    <td class="px-4 py-2 text-center font-semibold text-gray-900 dark:text-white">{{ $activity->note }}</td>
+
                 </tr>
                 @endforeach
             </tbody>

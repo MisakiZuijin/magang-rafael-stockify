@@ -26,26 +26,26 @@
         @endif
 
         {{-- Stats Cards --}}
-        <div class="grid grid-cols-12 md:grid-cols-12 gap-4">
-            <x-card.cards label="Total Transaksi" :value="$transactions->count()" color="blue">
+        <div class="grid col-span-12 grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <x-card.cards label="Total Transaksi" :value="$transactions->count()" color="blue" colSpan="col-span-1">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
             </x-card.cards>
 
-            <x-card.cards label="Stock Masuk" :value="$transactions->where('type', 'Masuk')->sum('quantity')" color="green">
+            <x-card.cards label="Stock Masuk" :value="$transactions->where('type', 'Masuk')->sum('quantity')" color="green" colSpan="col-span-1">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                 </svg>
             </x-card.cards>
 
-            <x-card.cards label="Stock Keluar" :value="$transactions->where('type', 'Keluar')->sum('quantity')" color="red">
+            <x-card.cards label="Stock Keluar" :value="$transactions->where('type', 'Keluar')->sum('quantity')" color="red" colSpan="col-span-1">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
                 </svg>
             </x-card.cards>
 
-            <x-card.cards label="Pending" :value="$transactions->where('status', 'Pending')->count()" color="orange">
+            <x-card.cards label="Pending" :value="$transactions->where('status', 'Pending')->count()" color="orange" colSpan="col-span-1">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -80,7 +80,7 @@
             viewAllRoute="{{ route('transactions.full') }}"
             showViewAll>
 
-            @forelse($transactions->sortByDesc('date') as $trx)
+            @forelse($transactions->sortByDesc('id') as $trx)
             <x-table.rows.stock-history-row :trx="$trx" />
             @empty
             <tr>
@@ -148,7 +148,6 @@
 
     </div>
 
-</div>
 </div>
 @endsection
 

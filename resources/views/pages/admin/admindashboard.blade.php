@@ -27,34 +27,49 @@ $chartData = [
             <x-page-header title="Dashboard" subtitle="Selamat datang, {{ auth()->user()->name }}!" />
 
             <div class="grid grid-cols-12 gap-4 lg:gap-6">
+                <div class="grid col-span-12 grid-cols-1 md:grid-cols-4 gap-4">
+                    {{-- CARD 1 --}}
+                    <x-card.cards label="Total Produk" :value="$products->count()" color="blue" colSpan="col-span-1">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                    </x-card.cards>
 
-                {{-- CARD 1 --}}
-                <x-card.cards label="Total Produk" :value="$products->count()" color="blue">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                    </svg>
-                </x-card.cards>
+                    {{-- CARD 2 --}}
+                    <x-card.cards label="Total Stok" :value="$products->sum('stock')" color="green" colSpan="col-span-1">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                        </svg>
+                    </x-card.cards>
 
-                {{-- CARD 2 --}}
-                <x-card.cards label="Total Stok" :value="$products->sum('stock')" color="green">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                    </svg>
-                </x-card.cards>
+                    {{-- CARD 3 --}}
+                    <x-card.cards label="Stok Kritis" :value="$chartData['stockKritis']" color="red" colSpan="col-span-1">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </x-card.cards>
 
-                {{-- CARD 3 --}}
-                <x-card.cards label="Stok Kritis" :value="$chartData['stockKritis']" color="red">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                </x-card.cards>
+                    {{-- CARD 4 --}}
+                    <x-card.cards label="Total Transaksi" :value="$transactions->count()" color="purple" colSpan="col-span-1">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                    </x-card.cards>
+                </div>
 
-                {{-- CARD 4 --}}
-                <x-card.cards label="Total Transaksi" :value="$transactions->count()" color="purple">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                    </svg>
-                </x-card.cards>
+                <div class="grid col-span-12 grid-cols-1 md:grid-cols-2 gap-4">
+                    <x-card.cards label="Masuk Hari Ini" :value="$todayIncoming->sum('quantity')" color="green" colSpan="col-span-1">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                        </svg>
+                    </x-card.cards>
+
+                    <x-card.cards label="Keluar Hari Ini" :value="$todayOutgoing->sum('quantity')" color="red" colSpan="col-span-1">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                        </svg>
+                    </x-card.cards>
+                </div>
 
                 {{-- BAR CHART --}}
                 <x-charts.bar-chart
@@ -106,7 +121,7 @@ $chartData = [
                     :searchable="true"
                     searchPlaceholder="Cari transaksi..."
                     currentSearch="{{ $search }}">
-                    @forelse($transactions as $transaction)
+                    @forelse($transactions->sortByDesc('id') as $transaction)
                     <x-table.rows.transaction-row :transaction="$transaction" />
                     @empty
                     <tr>

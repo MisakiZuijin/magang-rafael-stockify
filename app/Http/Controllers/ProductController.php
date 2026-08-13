@@ -197,7 +197,7 @@ class ProductController extends Controller
             'editRoute'   => $backRoute ? null : route('products.edit', $product->id),
             'deleteRoute' => $backRoute ? null : route('products.destroy', $product->id),
             'fields'      => [
-                ['label' => 'Gambar', 'value' => $product->image ? asset('storage/' . $product->image) : null, 'type' => 'image'],
+                ['label' => 'Gambar', 'value' => $product->image ? asset('images/' . $product->image) : null, 'type' => 'image'],
                 ['label' => 'Nama Produk', 'value' => $product->name],
                 ['label' => 'SKU', 'value' => $product->sku],
                 ['label' => 'Kategori', 'value' => $product->categori?->name],
@@ -278,7 +278,7 @@ class ProductController extends Controller
 
     public function full(Request $request): View
     {
-        $query = Product::with('categori');
+        $query = Product::with('categori', 'supplier');
 
         // Search
         if ($request->filled('search')) {

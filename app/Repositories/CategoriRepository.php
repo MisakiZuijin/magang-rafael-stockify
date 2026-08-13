@@ -14,7 +14,7 @@ class CategoriRepository implements CategoriRepositoryInterface
 
     public function getAll(): Collection
     {
-        return $this->model->latest()->get();
+        return $this->model->withCount('products')->latest()->get();
     }
 
     public function findById(int $id): Categori

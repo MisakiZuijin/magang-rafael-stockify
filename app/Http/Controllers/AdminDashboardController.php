@@ -6,6 +6,7 @@ use App\Services\ProductService;
 use App\Services\TransactionService;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class AdminDashboardController extends Controller
 {
@@ -23,6 +24,21 @@ class AdminDashboardController extends Controller
         $products         = $this->productService->getAllProducts();
         $transactions     = $this->transactionService->getAllTransaction();
         $recentActivities = $this->transactionService->getRecentActivities(5);
+
+        // === TRANSAKSI HARI INI ===
+        $today = now()->toDateString();
+
+        $todayIncoming = $transactions->filter(function ($trx) use ($today) {
+            return ($trx->type ?? '') === 'Masuk'
+                && !empty($trx->date)
+                && Carbon::parse($trx->date)->toDateString() === $today;
+        })->values();
+
+        $todayOutgoing = $transactions->filter(function ($trx) use ($today) {
+            return ($trx->type ?? '') === 'Keluar'
+                && !empty($trx->date)
+                && Carbon::parse($trx->date)->toDateString() === $today;
+        })->values();
 
         // === SEARCH & SORT PRODUK ===
         if ($search) {
@@ -69,6 +85,8 @@ class AdminDashboardController extends Controller
             'products',
             'transactions',
             'recentActivities',
+            'todayIncoming',
+            'todayOutgoing',
             'sortColumn',
             'sortDirection',
             'search'

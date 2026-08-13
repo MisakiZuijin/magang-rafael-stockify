@@ -85,7 +85,7 @@
                             {{ $value }}
                         </span>
                         @elseif($type === 'date' && $value)
-                        {{ \Carbon\Carbon::parse($value)->format('d M Y H:i') }}
+                        {{ \Carbon\Carbon::parse($value)->format('d M Y') }}
                         @else
                         {{ $value ?? '-' }}
                         @endif
