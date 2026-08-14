@@ -27,7 +27,7 @@ $chartData = [
             <x-page-header title="Dashboard" subtitle="Selamat datang, {{ auth()->user()->name }}!" />
 
             <div class="grid grid-cols-12 gap-4 lg:gap-6">
-                <div class="grid col-span-12 grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="grid col-span-12 grid-cols-1 md:grid-cols-3 gap-4">
                     {{-- CARD 1 --}}
                     <x-card.cards label="Total Produk" :value="$products->count()" color="blue" colSpan="col-span-1">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -55,9 +55,7 @@ $chartData = [
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                         </svg>
                     </x-card.cards>
-                </div>
 
-                <div class="grid col-span-12 grid-cols-1 md:grid-cols-2 gap-4">
                     <x-card.cards label="Masuk Hari Ini" :value="$todayIncoming->sum('quantity')" color="green" colSpan="col-span-1">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
@@ -150,6 +148,8 @@ $chartData = [
                 ['key' => 'id', 'label' => 'ID'],
                 ['key' => 'name', 'label' => 'Nama'],
                 ['key' => 'sku', 'label' => 'SKU'],
+                ['key' => 'category', 'label' => 'Kategori'],
+                ['key' => 'supplier', 'label' => 'Supplier'],
                 ['key' => 'purchase_price', 'label' => 'Harga Beli'],
                 ['key' => 'selling_price', 'label' => 'Harga Jual'],
                 ['key' => 'stock', 'label' => 'Stock'],

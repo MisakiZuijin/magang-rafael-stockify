@@ -69,6 +69,7 @@ $chartData = [
             $stockHeaders = [
             ['key' => 'id', 'label' => 'ID'],
             ['key' => 'name', 'label' => 'Nama Produk'],
+            ['key' => 'sku', 'label' => 'SKU'],
             ['key' => 'category', 'label' => 'Kategori'],
             ['key' => 'supplier', 'label' => 'Supplier'],
             ['key' => 'purchase_price', 'label' => 'Harga Beli'],

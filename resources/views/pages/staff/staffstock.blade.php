@@ -47,7 +47,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             {{-- DAFTAR BARANG MASUK PENDING --}}
             @php
-            $incomingHeaders = ['ID', 'Tanggal', 'Produk', 'Supplier/User', 'Qty', 'Catatan', 'Aksi'];
+            $incomingHeaders = ['ID', 'Tanggal', 'Produk', 'Pengaju', 'Qty', 'Catatan', 'Aksi'];
             @endphp
 
             <x-table.data-table
@@ -63,7 +63,7 @@
                 </x-slot:headerAction>
 
                 @forelse($incomingPending as $trx)
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors text-center">
                     <td class="px-4 py-3 font-mono text-gray-500 dark:text-gray-400">#{{ $trx->id }}</td>
                     <td class="px-4 py-3 text-gray-600 dark:text-gray-400 whitespace-nowrap">
                         {{ $trx->date ? \Carbon\Carbon::parse($trx->date)->format('d M Y') : '-' }}
@@ -122,7 +122,7 @@
                 </x-slot:headerAction>
 
                 @forelse($outgoingPending as $trx)
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors text-center">
                     <td class="px-4 py-3 font-mono text-gray-500 dark:text-gray-400">#{{ $trx->id }}</td>
                     <td class="px-4 py-3 text-gray-600 dark:text-gray-400 whitespace-nowrap">
                         {{ $trx->date ? \Carbon\Carbon::parse($trx->date)->format('d M Y') : '-' }}

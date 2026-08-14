@@ -16,11 +16,13 @@
     </td>
     <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">{{ $product->name }}</td>
     <td class="px-4 py-3 text-gray-600 dark:text-gray-400">{{ $product->categori?->name ?? 'N/A' }}</td>
+    <td class="px-4 py-3 text-gray-600 dark:text-gray-400">{{ $product->supplier?->name ?? 'N/A' }}</td>
     <td class="px-4 py-3 text-right text-gray-600 dark:text-gray-400">Rp {{ number_format($product->purchase_price, 0, ',', '.') }}</td>
     <td class="px-4 py-3 text-right text-gray-600 dark:text-gray-400">Rp {{ number_format($product->selling_price, 0, ',', '.') }}</td>
     <td class="px-4 py-3 text-center">
         <x-table.badges.badge-stock :stock="$product->stock" />
     </td>
+    <td class="px-4 py-3 font-medium text-gray-600 dark:text-gray-400">{{ $product->description }}</td>
     <td class="px-4 py-3 text-center">
         <div class="grid grid-flow-col auto-cols-max items-center justify-center gap-2">
             {{-- Detail --}}

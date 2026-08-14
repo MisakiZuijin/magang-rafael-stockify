@@ -19,9 +19,11 @@
             'Gambar',
             ['key' => 'name', 'label' => 'Nama'],
             ['key' => 'category', 'label' => 'Kategori'],
+            ['key' => 'supplier', 'label' => 'Supplier'],
             ['key' => 'purchase_price', 'label' => 'Harga Beli'],
             ['key' => 'selling_price', 'label' => 'Harga Jual'],
             ['key' => 'stock', 'label' => 'Stok'],
+            'Deskripsi',
             'Aksi',
             ];
             @endphp
